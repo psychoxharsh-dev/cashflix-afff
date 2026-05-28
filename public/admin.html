@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AffTrack — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0A0C18;--surface:#10132A;--surface2:#181C35;--border:rgba(255,255,255,0.06);--accent:#7C5CFC;--green:#22D3A0;--orange:#FF6B35;--red:#FF4D6D;--yellow:#FFD166;--blue:#00D4FF;--text:#E8ECFF;--muted:#5B6290;--font:'Outfit',sans-serif;--mono:'DM Mono',monospace;--display:'Syne',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+#authScreen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:94%;max-width:380px;}
+.auth-logo{font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:4px;}
+.auth-logo span{color:var(--accent);}
+.inp{width:100%;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
+.inp:focus{border-color:var(--accent);}
+.inp::placeholder{color:var(--muted);}
+.btn-full{width:100%;padding:12px;background:var(--accent);border:none;border-radius:9px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;}
+.auth-msg{font-size:12px;text-align:center;margin-top:10px;min-height:16px;color:var(--red);}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
+.logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+.logo h2{font-family:var(--display);font-size:18px;font-weight:800;}
+.logo h2 span{color:var(--accent);}
+.logo p{font-size:11px;color:var(--muted);margin-top:2px;}
+.admin-badge{margin:12px 20px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,0.25);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:var(--accent);text-align:center;letter-spacing:1px;}
+.nav-sec{padding:10px 20px 4px;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:.15s;border-left:3px solid transparent;}
+.nav-item:hover{color:var(--text);background:var(--surface2);}
+.nav-item.on{color:var(--accent);background:rgba(124,92,252,0.08);border-left-color:var(--accent);}
+.logout-link{padding:16px 20px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px;margin-top:auto;}
+.logout-link:hover{color:var(--red);}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar h1{font-family:var(--display);font-size:17px;font-weight:700;}
+.content{padding:22px;flex:1;}
+.page{display:none;}.page.on{display:block;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.stat-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.stat-val{font-family:var(--display);font-size:26px;font-weight:800;margin:4px 0 2px;}
+.stat-sub{font-size:11px;color:var(--muted);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;}
+.card-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-header h3{font-family:var(--display);font-size:15px;font-weight:700;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 18px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;background:var(--surface2);border-bottom:1px solid var(--border);}
+tbody td{padding:13px 18px;font-size:13px;border-bottom:1px solid var(--border);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,0.015);}
+.empty-row td{text-align:center;color:var(--muted);padding:28px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge.green{background:rgba(34,211,160,0.12);color:var(--green);}
+.badge.purple{background:rgba(124,92,252,0.12);color:var(--accent);}
+.badge.yellow{background:rgba(255,209,102,0.12);color:var(--yellow);}
+.badge.red{background:rgba(255,77,109,0.12);color:var(--red);}
+.badge.blue{background:rgba(0,212,255,0.12);color:var(--blue);}
+.btn{padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;}
+.btn-accent{background:var(--accent);color:white;}
+.btn-green{background:rgba(34,211,160,0.15);color:var(--green);border:1px solid rgba(34,211,160,0.25);}
+.btn-red{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.2);}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-yellow{background:rgba(255,209,102,0.12);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);}
+select option{background:var(--surface2);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-bg.show{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-head h3{font-family:var(--display);font-size:17px;font-weight:700;}
+.x-btn{background:var(--surface2);border:none;color:var(--muted);width:30px;height:30px;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.toast{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideIn .3s ease;min-width:240px;}
+.toast-item.ok{border-color:rgba(34,211,160,0.3);}
+.toast-item.err{border-color:rgba(255,77,109,0.3);}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px);}}
+</style>
+</head>
+<body>
+
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">Aff<span>Track</span> <span style="font-size:12px;background:rgba(124,92,252,0.2);color:var(--accent);padding:2px 8px;border-radius:4px">ADMIN</span></div>
+    <p style="color:var(--muted);font-size:12px;margin-bottom:24px">Admin access only</p>
+    <input class="inp" id="aEmail" type="email" placeholder="Admin email">
+    <input class="inp" id="aPass" type="password" placeholder="Password">
+    <button class="btn-full" onclick="doLogin()">Login</button>
+    <div class="auth-msg" id="authMsg"></div>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="logo"><h2>Aff<span>Track</span></h2><p>Admin Panel</p></div>
+  <div class="admin-badge">⚡ ADMIN</div>
+  <nav style="flex:1;overflow-y:auto">
+    <div class="nav-sec">Overview</div>
+    <div class="nav-item on" onclick="go('dashboard',this)">📊 Dashboard</div>
+    <div class="nav-sec">Manage</div>
+    <div class="nav-item" onclick="go('publishers',this)">👥 Publishers</div>
+    <div class="nav-item" onclick="go('campaigns',this)">📢 Campaigns</div>
+    <div class="nav-item" onclick="go('conversions',this)">✅ Conversions</div>
+    <div class="nav-item" onclick="go('withdrawals',this)">💸 Withdrawals</div>
+    <div class="nav-sec">Reports</div>
+    <div class="nav-item" onclick="go('clicks',this)">👆 Clicks</div>
+    <div class="nav-item" onclick="go('pblogs',this)">⌨ PB Logs</div>
+  </nav>
+  <div class="logout-link" onclick="doLogout()">⏻ Logout</div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <h1 id="pageTitle">Dashboard</h1>
+    <div style="display:flex;gap:16px;font-size:13px">
+      <span>⏳ Pending WD: <strong id="topWd" style="color:var(--yellow)">0</strong></span>
+      <span>📢 Live: <strong id="topCamps" style="color:var(--green)">0</strong></span>
+    </div>
+  </header>
+  <div class="content">
+
+    <div class="page on" id="pg-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-lbl">Publishers</div><div class="stat-val" id="ds-pubs">0</div><div class="stat-sub">Total registered</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Clicks</div><div class="stat-val" id="ds-clicks">0</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card"><div class="stat-lbl">Conversions</div><div class="stat-val" id="ds-convs">0</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Payout</div><div class="stat-val" id="ds-payout">₹0</div><div class="stat-sub">Approved</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-header"><h3>Pending Withdrawals</h3></div>
+          <table><thead><tr><th>Publisher</th><th>Amount</th><th>Action</th></tr></thead>
+          <tbody id="dashWd"><tr class="empty-row"><td colspan="3">Loading...</td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Recent Conversions</h3></div>
+          <table><thead><tr><th>Publisher</th><th>Payout</th><th>Status</th></tr></thead>
+          <tbody id="dashConvs"><tr class="empty-row"><td colspan="3">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="pg-publishers">
+      <div class="card">
+        <div class="card-header"><h3>All Publishers</h3>
+          <input style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;width:180px" placeholder="🔍 Search..." oninput="filterPubs(this.value)">
+        </div>
+        <table><thead><tr><th>Name</th><th>Email</th><th>Balance</th><th>Earned</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="pubsTable"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="pg-campaigns">
+      <button class="btn btn-accent" style="margin-bottom:16px" onclick="openCampModal()">+ New Campaign</button>
+      <div class="card">
+        <div class="card-header"><h3>All Campaigns</h3></div>
+        <table><thead><tr><th>Name</th><th>Install</th><th>Trial</th><th>Lead</th><th>Purchase</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="campsTable"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="pg-conversions">
+      <div class="card">
+        <div class="card-header"><h3>Conversions</h3>
+          <div style="display:flex;gap:8px">
+            <select id="convStatus" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none" onchange="loadConversions()">
+              <option value="">All</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadConversions()">Refresh</button>
+          </div>
+        </div>
+        <table><thead><tr><th>Time</th><th>Click ID</th><th>Publisher</th><th>Campaign</th><th>Event</th><th>Payout</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="convsTable"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="pg-withdrawals">
+      <div class="card">
+        <div class="card-header"><h3>Withdrawals</h3>
+          <select id="wdFilter" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none" onchange="loadWithdrawals()">
+            <option value="">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <table><thead><tr><th>Publisher</th><th>Amount</th><th>UPI</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="wdTable"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="pg-clicks">
+      <div class="card">
+        <div class="card-header"><h3>All Clicks</h3><button class="btn btn-ghost btn-sm" onclick="loadClicks()">Refresh</button></div>
+        <table><thead><tr><th>Time</th><th>Click ID</th><th>Publisher</th><th>Campaign</th><th>Device</th><th>IP</th></tr></thead>
+        <tbody id="clicksTable"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="page" id="pg-pblogs">
+      <div class="card">
+        <div class="card-header"><h3>Postback Logs</h3><button class="btn btn-ghost btn-sm" onclick="loadPBLogs()">Refresh</button></div>
+        <table><thead><tr><th>Time</th><th>Publisher</th><th>URL</th><th>Code</th><th>Status</th></tr></thead>
+        <tbody id="pbLogsTable"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- CAMPAIGN MODAL -->
+<div class="modal-bg" id="campModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="campModalTitle">New Campaign</h3><button class="x-btn" onclick="closeCampModal()">✕</button></div>
+    <div class="form-group"><label>Campaign Name</label><input id="cName" type="text" placeholder="e.g. Mobile Xpression"></div>
+    <div class="form-group"><label>Description</label><input id="cDesc" type="text" placeholder="Short description"></div>
+    <div class="form-group"><label>Target URL (where user will be sent)</label><input id="cUrl" type="url" placeholder="https://advertiser.com/lp"></div>
+    <div class="form-group"><label>Category</label>
+      <select id="cCat"><option>CPA</option><option>CPL</option><option>CPI</option></select>
+    </div>
+    <div style="background:rgba(34,211,160,0.06);border:1px solid rgba(34,211,160,0.15);border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:10px;text-transform:uppercase">Payouts per Event (₹) — 0 = disabled</div>
+      <div class="form-row">
+        <div class="form-group"><label>📲 Install</label><input id="cInstall" type="number" value="0" placeholder="0"></div>
+        <div class="form-group"><label>🔖 Trial</label><input id="cTrial" type="number" value="0" placeholder="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>📋 Lead</label><input id="cLead" type="number" value="0" placeholder="0"></div>
+        <div class="form-group"><label>💳 Purchase</label><input id="cPurchase" type="number" value="0" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="form-group"><label>Status</label>
+      <select id="cStatus"><option value="active">Active</option><option value="paused">Paused</option></select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-accent" style="flex:1" onclick="saveCampaign()">Save Campaign</button>
+      <button class="btn btn-ghost" onclick="closeCampModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://brdiufojignimvdamkjr.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZGl1Zm9qaWduaW12ZGFta2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzcxMzAsImV4cCI6MjA5NTU1MzEzMH0.RRPoR4BQXa8g54OZRRTU7RatkIzH5THWzJKEXFY7cZA';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+let SESSION=null,editCampId=null,allPubs=[];
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){SESSION=session;showApp();}
+  sb.auth.onAuthStateChange((_,s)=>{if(s){SESSION=s;showApp();}else{SESSION=null;document.getElementById('authScreen').style.display='flex';}});
+}
+function showApp(){document.getElementById('authScreen').style.display='none';loadDashboard();loadPublishers();loadCampaigns();}
+async function doLogin(){
+  const e=v('aEmail'),p=v('aPass');
+  if(!e||!p){set2('authMsg','Fill all fields');return;}
+  set2('authMsg','Logging in...');
+  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error)set2('authMsg',error.message);
+}
+async function doLogout(){await sb.auth.signOut();}
+function set2(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+
+async function loadDashboard(){
+  const [p,cl,cv,wd]=await Promise.all([
+    sb.from('publishers').select('id'),
+    sb.from('clicks').select('id'),
+    sb.from('conversions').select('payout,status'),
+    sb.from('withdrawals').select('*,publishers(name)').eq('status','pending').order('requested_at',{ascending:false}).limit(5)
+  ]);
+  const approved=(cv.data||[]).filter(c=>c.status==='approved');
+  set2('ds-pubs',(p.data||[]).length);
+  set2('ds-clicks',(cl.data||[]).length);
+  set2('ds-convs',(cv.data||[]).length);
+  set2('ds-payout','₹'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
+  set2('topWd',(wd.data||[]).length);
+
+  const wt=document.getElementById('dashWd');
+  if(!(wd.data||[]).length){wt.innerHTML='<tr class="empty-row"><td colspan="3">None pending</td></tr>';}
+  else wt.innerHTML=wd.data.map(w=>`<tr>
+    <td>${w.publishers?.name||'—'}</td>
+    <td style="font-weight:700;color:var(--yellow)">₹${Number(w.amount).toFixed(2)}</td>
+    <td><button class="btn btn-green btn-sm" onclick="approveWd('${w.id}','${w.publisher_id}',${w.amount})">Pay ✓</button></td>
+  </tr>`).join('');
+
+  const {data:rc}=await sb.from('conversions').select('*,publishers(name)').order('created_at',{ascending:false}).limit(8);
+  const ct=document.getElementById('dashConvs');
+  if(!(rc||[]).length){ct.innerHTML='<tr class="empty-row"><td colspan="3">No conversions</td></tr>';}
+  else ct.innerHTML=rc.map(r=>`<tr>
+    <td>${r.publishers?.name||'—'}</td>
+    <td style="color:var(--green);font-weight:700">₹${Number(r.payout).toFixed(2)}</td>
+    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
+ 
