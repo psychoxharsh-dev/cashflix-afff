@@ -293,4 +293,399 @@ select option{background:var(--surface2);}
 <div class="modal-bg" id="pbModal">
   <div class="modal">
     <div class="modal-head"><h3>Add Postback</h3><button class="x-btn" onclick="closePBModal()">✕</button></div>
-    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select...</o
+    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select...</option></select></div>
+    <div class="form-group"><label>Event</label>
+      <select id="pbEvent">
+        <option value="install">📲 Install</option>
+        <option value="trial">🔖 Trial</option>
+        <option value="lead">📋 Lead</option>
+        <option value="purchase">💳 Purchase</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Your Postback URL</label>
+      <textarea id="pbUrl" placeholder="https://yourtracker.com/postback?click={aff_click_id}&payout={payout}"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:6px">👆 Parameter insert karne ke liye click karo:</div>
+      <div class="params-wrap">
+        <span class="param-chip" onclick="ins('{aff_click_id}')">{aff_click_id}</span>
+        <span class="param-chip" onclick="ins('{payout}')">{payout}</span>
+        <span class="param-chip" onclick="ins('{event_name}')">{event_name}</span>
+        <span class="param-chip" onclick="ins('{offer_id}')">{offer_id}</span>
+        <span class="param-chip" onclick="ins('{affsub}')">{affsub}</span>
+        <span class="param-chip" onclick="ins('{device}')">{device}</span>
+        <span class="param-chip" onclick="ins('{ip}')">{ip}</span>
+        <span class="param-chip" onclick="ins('{click_time}')">{click_time}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-accent" style="flex:1" onclick="savePB()">Save Postback</button>
+      <button class="btn btn-ghost" onclick="closePBModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- GET LINK MODAL -->
+<div class="modal-bg" id="linkModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="linkModalTitle">Get Link</h3><button class="x-btn" onclick="document.getElementById('linkModal').classList.remove('show')">✕</button></div>
+    <div style="background:rgba(79,158,255,0.07);border:1px solid rgba(79,158,255,0.15);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:8px;text-transform:uppercase">Is Campaign ke Payouts</div>
+      <div id="campPayouts" style="font-size:13px;line-height:2"></div>
+    </div>
+    <div class="form-group"><label>Sub ID (optional — apni tracking ke liye)</label><input id="linkSubId" type="text" placeholder="e.g. facebook_ad_1"></div>
+    <div class="form-group">
+      <label>Aapka Affiliate Link</label>
+      <div class="url-box"><span class="url-text" id="linkPreview">Neeche Generate dabao</span><button class="copy-btn" onclick="copyAffLink()">Copy</button></div>
+    </div>
+    <button class="btn btn-accent" style="width:100%" onclick="generateLink()">🔗 Generate Link</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://brdiufojignimvdamkjr.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZGl1Zm9qaWduaW12ZGFta2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzcxMzAsImV4cCI6MjA5NTU1MzEzMH0.RRPoR4BQXa8g54OZRRTU7RatkIzH5THWzJKEXFY7cZA';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+let SESSION=null,PUBLISHER=null,CAMPAIGNS=[],linkCampId=null;
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){SESSION=session;await loadPublisher();showApp();}
+  sb.auth.onAuthStateChange(async(_,s)=>{
+    if(s){SESSION=s;await loadPublisher();showApp();}
+    else{SESSION=null;PUBLISHER=null;document.getElementById('authScreen').style.display='flex';}
+  });
+}
+
+function showApp(){
+  document.getElementById('authScreen').style.display='none';
+  set('sideName',PUBLISHER?.name||'Publisher');
+  set('sideEmail',SESSION?.user?.email||'');
+  document.getElementById('sideAvatar').textContent=(PUBLISHER?.name||'P')[0].toUpperCase();
+  updateBalance();
+  loadDashboard();
+  loadCampaigns();
+}
+
+function switchTab(t){
+  document.getElementById('loginForm').style.display=t==='login'?'block':'none';
+  document.getElementById('signupForm').style.display=t==='signup'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('on',t==='login');
+  document.getElementById('tabSignup').classList.toggle('on',t==='signup');
+  msg('','');
+}
+
+function msg(txt,type){
+  const el=document.getElementById('authMsg');
+  el.textContent=txt;
+  el.className='auth-msg'+(type?' '+type:'');
+}
+
+async function doLogin(){
+  const e=v('loginEmail'),p=v('loginPass');
+  if(!e||!p){msg('Email aur password bharo','err');return;}
+  msg('Login ho raha hai...');
+  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){msg(error.message,'err');return;}
+  msg('');
+}
+
+async function doSignup(){
+  const btn=document.getElementById('signupBtn');
+  const name=v('signupName'),email=v('signupEmail'),phone=v('signupPhone'),pass=v('signupPass');
+  if(!name){msg('Naam bharo','err');return;}
+  if(!email){msg('Email bharo','err');return;}
+  if(!pass){msg('Password bharo','err');return;}
+  if(pass.length<6){msg('Password kam se kam 6 characters ka hona chahiye','err');return;}
+  btn.textContent='Creating...';btn.disabled=true;
+  msg('Account ban raha hai...','');
+  try{
+    const {data,error}=await sb.auth.signUp({email,password:pass});
+    if(error){msg(error.message,'err');btn.textContent='Create Account';btn.disabled=false;return;}
+    if(data?.user){
+      const {error:dbErr}=await sb.from('publishers').insert({
+        id:data.user.id,email,name,phone:phone||null,status:'active',balance:0,total_earned:0
+      });
+      if(dbErr)console.log('DB error:',dbErr.message);
+      msg('✅ Account ban gaya! Ab login karo.','ok');
+      setTimeout(()=>{
+        switchTab('login');
+        document.getElementById('loginEmail').value=email;
+        document.getElementById('loginPass').value='';
+        msg('Login karo apne account se','ok');
+      },1500);
+    }
+  }catch(e){
+    msg('Error: '+e.message,'err');
+  }
+  btn.textContent='Create Account';btn.disabled=false;
+}
+
+async function doLogout(){await sb.auth.signOut();}
+
+async function loadPublisher(){
+  if(!SESSION)return;
+  const {data}=await sb.from('publishers').select('*').eq('id',SESSION.user.id).single();
+  PUBLISHER=data;
+}
+
+function updateBalance(){
+  const b=(PUBLISHER?.balance||0).toFixed(2);
+  set('topBalance',b);set('wdBalance',b);
+}
+
+async function loadDashboard(){
+  if(!SESSION)return;
+  const pid=SESSION.user.id;
+  const [{data:cl},{data:cv}]=await Promise.all([
+    sb.from('clicks').select('id').eq('publisher_id',pid),
+    sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',pid).order('created_at',{ascending:false})
+  ]);
+  const approved=(cv||[]).filter(c=>c.status==='approved');
+  const pending=(cv||[]).filter(c=>c.status==='pending');
+  set('st-clicks',(cl||[]).length);
+  set('st-convs',approved.length);
+  set('st-earned','₹'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
+  set('st-pending',pending.length);
+  const tb=document.getElementById('recentConvs');
+  const recent=(cv||[]).slice(0,10);
+  if(!recent.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Abhi tak koi conversion nahi</td></tr>';return;}
+  tb.innerHTML=recent.map(r=>`<tr>
+    <td style="font-size:12px;color:var(--muted)">${fmtTime(r.created_at)}</td>
+    <td>${r.campaigns?.name||'—'}</td>
+    <td><span class="badge blue">${r.event_name}</span></td>
+    <td style="color:var(--green);font-weight:600">₹${Number(r.payout).toFixed(2)}</td>
+    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
+  </tr>`).join('');
+}
+
+async function loadCampaigns(){
+  const {data}=await sb.from('campaigns').select('*').eq('status','active');
+  CAMPAIGNS=data||[];
+  const sel=document.getElementById('pbCamp');
+  sel.innerHTML='<option value="">Select...</option>'+CAMPAIGNS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  renderCamps(CAMPAIGNS);
+}
+
+function renderCamps(list){
+  const tb=document.getElementById('campTable');
+  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="4">Koi campaign nahi</td></tr>';return;}
+  tb.innerHTML=list.map(c=>`<tr>
+    <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.description||''}</span></td>
+    <td style="font-size:12px;line-height:1.9">
+      ${c.payout_install>0?`📲 Install: <strong style="color:var(--green)">₹${c.payout_install}</strong><br>`:''}
+      ${c.payout_trial>0?`🔖 Trial: <strong style="color:var(--green)">₹${c.payout_trial}</strong><br>`:''}
+      ${c.payout_lead>0?`📋 Lead: <strong style="color:var(--green)">₹${c.payout_lead}</strong><br>`:''}
+      ${c.payout_purchase>0?`💳 Purchase: <strong style="color:var(--green)">₹${c.payout_purchase}</strong>`:''}
+    </td>
+    <td><span class="badge green">● Active</span></td>
+    <td><button class="btn btn-accent btn-sm" onclick="openLinkModal('${c.id}','${c.name}',${c.payout_install||0},${c.payout_trial||0},${c.payout_lead||0},${c.payout_purchase||0})">Get Link</button></td>
+  </tr>`).join('');
+}
+
+function filterCamps(q){renderCamps(CAMPAIGNS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())));}
+
+function openLinkModal(cid,name,pi,pt,pl,pp){
+  linkCampId=cid;
+  document.getElementById('linkModalTitle').textContent=name;
+  document.getElementById('linkSubId').value='';
+  document.getElementById('linkPreview').textContent='Neeche Generate dabao';
+  let payouts='';
+  if(pi>0)payouts+=`<div>📲 Install: <strong style="color:var(--green)">₹${pi}</strong></div>`;
+  if(pt>0)payouts+=`<div>🔖 Trial: <strong style="color:var(--green)">₹${pt}</strong></div>`;
+  if(pl>0)payouts+=`<div>📋 Lead: <strong style="color:var(--green)">₹${pl}</strong></div>`;
+  if(pp>0)payouts+=`<div>💳 Purchase: <strong style="color:var(--green)">₹${pp}</strong></div>`;
+  document.getElementById('campPayouts').innerHTML=payouts||'<span style="color:var(--muted)">Payout set nahi</span>';
+  document.getElementById('linkModal').classList.add('show');
+}
+
+async function generateLink(){
+  if(!linkCampId){toast('Pehle campaign select karo','err');return;}
+  const sub=v('linkSubId');
+  const shortCode=Math.random().toString(36).slice(2,10);
+  const {error}=await sb.from('affiliate_links').insert({
+    publisher_id:SESSION.user.id,campaign_id:linkCampId,short_code:shortCode,sub_id:sub||null
+  });
+  if(error){toast('Error: '+error.message,'err');return;}
+  const url=window.location.origin+'/track/'+shortCode;
+  document.getElementById('linkPreview').textContent=url;
+  toast('Link generate ho gaya!','ok');
+}
+
+function copyAffLink(){
+  const t=document.getElementById('linkPreview').textContent;
+  if(t==='Neeche Generate dabao'){toast('Pehle link generate karo','err');return;}
+  copy(t);
+}
+
+async function loadLinks(){
+  const {data}=await sb.from('affiliate_links').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id).order('created_at',{ascending:false});
+  const tb=document.getElementById('linksTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi link nahi banaya</td></tr>';return;}
+  tb.innerHTML=data.map(l=>`<tr>
+    <td>${l.campaigns?.name||'—'}</td>
+    <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${l.sub_id||'—'}</td>
+    <td id="lc-${l.short_code}">...</td>
+    <td><div class="url-box"><span class="url-text">${window.location.origin}/track/${l.short_code}</span><button class="copy-btn" onclick="copy('${window.location.origin}/track/${l.short_code}')">Copy</button></div></td>
+    <td style="font-size:12px;color:var(--muted)">${fmtDate(l.created_at)}</td>
+  </tr>`).join('');
+  for(const l of data){
+    const {data:cl}=await sb.from('clicks').select('id').eq('link_id',l.id);
+    const el=document.getElementById(`lc-${l.short_code}`);
+    if(el)el.textContent=(cl||[]).length;
+  }
+}
+
+async function loadPostbacks(){
+  const {data}=await sb.from('postbacks').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
+  const container=document.getElementById('pbList');
+  if(!data?.length){container.innerHTML='<div style="color:var(--muted);padding:10px">Koi postback nahi add kiya.</div>';return;}
+  container.innerHTML=data.map(p=>`
+    <div class="pb-item">
+      <div class="pb-item-head">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <strong>${p.campaigns?.name||'—'}</strong>
+          <span class="badge blue">${p.event_name}</span>
+          <span class="badge green">${p.status}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deletePB('${p.id}')">Delete</button>
+      </div>
+      <div class="url-box"><span class="url-text">${p.postback_url}</span><button class="copy-btn" onclick="copy('${p.postback_url}')">Copy</button></div>
+    </div>`).join('');
+}
+
+function openPBModal(){document.getElementById('pbModal').classList.add('show');}
+function closePBModal(){document.getElementById('pbModal').classList.remove('show');}
+
+function ins(p){
+  const ta=document.getElementById('pbUrl');
+  const pos=ta.selectionStart||ta.value.length;
+  ta.value=ta.value.slice(0,pos)+p+ta.value.slice(pos);
+  ta.focus();
+}
+
+async function savePB(){
+  const cid=v('pbCamp'),evt=v('pbEvent'),url=v('pbUrl');
+  if(!cid||!url){toast('Sab fields bharo','err');return;}
+  const {error}=await sb.from('postbacks').insert({publisher_id:SESSION.user.id,campaign_id:cid,event_name:evt,postback_url:url});
+  if(error){toast('Error: '+error.message,'err');return;}
+  document.getElementById('pbUrl').value='';
+  closePBModal();toast('Postback save ho gaya!','ok');loadPostbacks();
+}
+
+async function deletePB(id){
+  if(!confirm('Delete karna chahte ho?'))return;
+  await sb.from('postbacks').delete().eq('id',id);
+  toast('Delete ho gaya','ok');loadPostbacks();
+}
+
+async function doWithdraw(){
+  const amount=parseFloat(v('wdAmount')),upi=v('wdUpi')||PUBLISHER?.upi_id;
+  if(!amount||amount<200){toast('Minimum ₹200 chahiye','err');return;}
+  if(!upi){toast('UPI ID bharo','err');return;}
+  if(amount>(PUBLISHER?.balance||0)){toast('Balance nahi hai itna','err');return;}
+  const {error}=await sb.from('withdrawals').insert({publisher_id:SESSION.user.id,amount,upi_id:upi});
+  if(error){toast('Error: '+error.message,'err');return;}
+  await sb.from('publishers').update({balance:(PUBLISHER.balance-amount)}).eq('id',SESSION.user.id);
+  await loadPublisher();updateBalance();
+  document.getElementById('wdAmount').value='';
+  toast('Withdrawal request bhej di!','ok');
+}
+
+async function loadWithdrawHistory(){
+  const {data}=await sb.from('withdrawals').select('*').eq('publisher_id',SESSION.user.id).order('requested_at',{ascending:false});
+  const tb=document.getElementById('wdHistory');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi withdrawal nahi</td></tr>';return;}
+  tb.innerHTML=data.map(w=>`<tr>
+    <td>${fmtDate(w.requested_at)}</td>
+    <td style="font-weight:700;color:var(--green)">₹${Number(w.amount).toFixed(2)}</td>
+    <td style="font-family:var(--mono);font-size:12px">${w.upi_id}</td>
+    <td><span class="badge ${w.status==='paid'?'green':w.status==='rejected'?'red':'yellow'}">${w.status}</span></td>
+    <td style="color:var(--muted);font-size:12px">${w.note||'—'}</td>
+  </tr>`).join('');
+}
+
+async function saveUpi(){
+  const upi=v('upiVal');if(!upi){toast('UPI ID daalo','err');return;}
+  await sb.from('publishers').update({upi_id:upi}).eq('id',SESSION.user.id);
+  await loadPublisher();toast('UPI save ho gaya!','ok');
+}
+
+async function loadPerf(){
+  const from=v('perfFrom'),to=v('perfTo');
+  let q=sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
+  if(from)q=q.gte('created_at',from);
+  if(to)q=q.lte('created_at',to+'T23:59:59');
+  const {data}=await q.order('created_at',{ascending:false});
+  const tb=document.getElementById('perfTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi data nahi</td></tr>';return;}
+  const groups={};
+  for(const r of data){
+    const key=fmtDate(r.created_at)+'|'+(r.campaigns?.name||'—');
+    if(!groups[key])groups[key]={date:fmtDate(r.created_at),camp:r.campaigns?.name||'—',convs:0,earn:0};
+    groups[key].convs++;groups[key].earn+=Number(r.payout);
+  }
+  tb.innerHTML=Object.values(groups).map(g=>`<tr>
+    <td>${g.date}</td><td>${g.camp}</td><td>—</td><td>${g.convs}</td>
+    <td style="color:var(--green);font-weight:700">₹${g.earn.toFixed(2)}</td>
+  </tr>`).join('');
+}
+
+async function loadConsole(){
+  const {data}=await sb.from('postback_logs').select('*').eq('publisher_id',SESSION.user.id).order('fired_at',{ascending:false}).limit(50);
+  const box=document.getElementById('consoleBox');
+  if(!data?.length){box.innerHTML='<div class="log-entry"><span class="log-time">--:--</span><span style="color:var(--muted)">Koi log nahi</span></div>';return;}
+  box.innerHTML=data.map(l=>`<div class="log-entry">
+    <span class="log-time">${fmtTime(l.fired_at)}</span>
+    <span class="${l.status==='success'?'log-ok':'log-err'}">[${l.response_code||'ERR'}]</span>
+    <span class="log-url">${l.fired_url||'—'}</span>
+  </div>`).join('');
+}
+
+async function loadProfile(){
+  document.getElementById('profName').value=PUBLISHER?.name||'';
+  document.getElementById('profPhone').value=PUBLISHER?.phone||'';
+  document.getElementById('upiVal').value=PUBLISHER?.upi_id||'';
+}
+
+async function saveProfile(){
+  const name=v('profName'),phone=v('profPhone');
+  if(!name){toast('Naam bharo','err');return;}
+  await sb.from('publishers').update({name,phone:phone||null}).eq('id',SESSION.user.id);
+  await loadPublisher();
+  set('sideName',name);
+  document.getElementById('sideAvatar').textContent=name[0].toUpperCase();
+  toast('Profile update ho gaya!','ok');
+}
+
+function go(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  el.classList.add('on');
+  set('pageTitle',el.textContent.trim().replace(/^.\s*/,''));
+  closeSidebar();
+  if(id==='dashboard')loadDashboard();
+  if(id==='mylinks')loadLinks();
+  if(id==='postback')loadPostbacks();
+  if(id==='withhistory')loadWithdrawHistory();
+  if(id==='pbconsole')loadConsole();
+  if(id==='profile')loadProfile();
+  if(id==='withdraw')updateBalance();
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
+function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
+function copy(txt){navigator.clipboard.writeText(txt).then(()=>toast('Copy ho gaya!','ok')).catch(()=>toast('Copy failed','err'));}
+function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'✅':'❌'}</span>${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+init();
+</script>
+</body>
+</html>
