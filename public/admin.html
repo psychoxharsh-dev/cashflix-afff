@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AffTrack — Admin</title>
+<title>CashFlix Affiliate — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -14,14 +14,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:94%;max-width:380px;}
 .auth-logo{font-family:var(--display);font-size:22px;font-weight:800;margin-bottom:4px;}
 .auth-logo span{color:var(--accent);}
-.inp{width:100%;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
+.inp{width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
 .inp:focus{border-color:var(--accent);}
 .inp::placeholder{color:var(--muted);}
-.btn-full{width:100%;padding:12px;background:var(--accent);border:none;border-radius:9px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;}
+.btn-full{width:100%;padding:13px;background:var(--accent);border:none;border-radius:9px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-full:hover{background:#6a4ce0;}
 .auth-msg{font-size:12px;text-align:center;margin-top:10px;min-height:16px;color:var(--red);}
 .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
 .logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
-.logo h2{font-family:var(--display);font-size:18px;font-weight:800;}
+.logo h2{font-family:var(--display);font-size:18px;font-weight:800;line-height:1.2;}
 .logo h2 span{color:var(--accent);}
 .logo p{font-size:11px;color:var(--muted);margin-top:2px;}
 .admin-badge{margin:12px 20px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,0.25);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:var(--accent);text-align:center;letter-spacing:1px;}
@@ -56,17 +57,18 @@ tbody tr:hover{background:rgba(255,255,255,0.015);}
 .badge.yellow{background:rgba(255,209,102,0.12);color:var(--yellow);}
 .badge.red{background:rgba(255,77,109,0.12);color:var(--red);}
 .badge.blue{background:rgba(0,212,255,0.12);color:var(--blue);}
+.badge.orange{background:rgba(255,107,53,0.12);color:var(--orange);}
 .btn{padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;}
-.btn-accent{background:var(--accent);color:white;}
-.btn-green{background:rgba(34,211,160,0.15);color:var(--green);border:1px solid rgba(34,211,160,0.25);}
-.btn-red{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.2);}
-.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-accent{background:var(--accent);color:white;}.btn-accent:hover{background:#6a4ce0;}
+.btn-green{background:rgba(34,211,160,0.15);color:var(--green);border:1px solid rgba(34,211,160,0.25);}.btn-green:hover{background:rgba(34,211,160,0.3);}
+.btn-red{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.2);}.btn-red:hover{background:rgba(255,77,109,0.25);}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
 .btn-yellow{background:rgba(255,209,102,0.12);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
 .btn-sm{padding:4px 10px;font-size:11px;}
 .form-group{margin-bottom:14px;}
 .form-group label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.2s;}
-.form-group input:focus,.form-group select:focus{border-color:var(--accent);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
 select option{background:var(--surface2);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
@@ -80,13 +82,14 @@ select option{background:var(--surface2);}
 .toast-item.ok{border-color:rgba(34,211,160,0.3);}
 .toast-item.err{border-color:rgba(255,77,109,0.3);}
 @keyframes slideIn{from{opacity:0;transform:translateY(20px);}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
 </style>
 </head>
 <body>
 
 <div id="authScreen">
   <div class="auth-box">
-    <div class="auth-logo">Aff<span>Track</span> <span style="font-size:12px;background:rgba(124,92,252,0.2);color:var(--accent);padding:2px 8px;border-radius:4px">ADMIN</span></div>
+    <div class="auth-logo">💰 Cash<span>Flix</span> <span style="font-size:12px;background:rgba(124,92,252,0.2);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:var(--font)">ADMIN</span></div>
     <p style="color:var(--muted);font-size:12px;margin-bottom:24px">Admin access only</p>
     <input class="inp" id="aEmail" type="email" placeholder="Admin email">
     <input class="inp" id="aPass" type="password" placeholder="Password">
@@ -96,7 +99,7 @@ select option{background:var(--surface2);}
 </div>
 
 <aside class="sidebar">
-  <div class="logo"><h2>Aff<span>Track</span></h2><p>Admin Panel</p></div>
+  <div class="logo"><h2>💰 Cash<span>Flix</span></h2><p>Admin Panel</p></div>
   <div class="admin-badge">⚡ ADMIN</div>
   <nav style="flex:1;overflow-y:auto">
     <div class="nav-sec">Overview</div>
@@ -215,19 +218,19 @@ select option{background:var(--surface2);}
     <div class="modal-head"><h3 id="campModalTitle">New Campaign</h3><button class="x-btn" onclick="closeCampModal()">✕</button></div>
     <div class="form-group"><label>Campaign Name</label><input id="cName" type="text" placeholder="e.g. Mobile Xpression"></div>
     <div class="form-group"><label>Description</label><input id="cDesc" type="text" placeholder="Short description"></div>
-    <div class="form-group"><label>Target URL (where user will be sent)</label><input id="cUrl" type="url" placeholder="https://advertiser.com/lp"></div>
+    <div class="form-group"><label>Target URL (user yahan jayega)</label><input id="cUrl" type="url" placeholder="https://advertiser.com/lp"></div>
     <div class="form-group"><label>Category</label>
       <select id="cCat"><option>CPA</option><option>CPL</option><option>CPI</option></select>
     </div>
     <div style="background:rgba(34,211,160,0.06);border:1px solid rgba(34,211,160,0.15);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:10px;text-transform:uppercase">Payouts per Event (₹) — 0 = disabled</div>
+      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:12px;text-transform:uppercase">Payout Per Event (₹) — 0 matlab disabled</div>
       <div class="form-row">
-        <div class="form-group"><label>📲 Install</label><input id="cInstall" type="number" value="0" placeholder="0"></div>
-        <div class="form-group"><label>🔖 Trial</label><input id="cTrial" type="number" value="0" placeholder="0"></div>
+        <div class="form-group"><label>📲 Install</label><input id="cInstall" type="number" value="0"></div>
+        <div class="form-group"><label>🔖 Trial</label><input id="cTrial" type="number" value="0"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>📋 Lead</label><input id="cLead" type="number" value="0" placeholder="0"></div>
-        <div class="form-group"><label>💳 Purchase</label><input id="cPurchase" type="number" value="0" placeholder="0"></div>
+        <div class="form-group"><label>📋 Lead</label><input id="cLead" type="number" value="0"></div>
+        <div class="form-group"><label>💳 Purchase</label><input id="cPurchase" type="number" value="0"></div>
       </div>
     </div>
     <div class="form-group"><label>Status</label>
@@ -255,15 +258,17 @@ async function init(){
   sb.auth.onAuthStateChange((_,s)=>{if(s){SESSION=s;showApp();}else{SESSION=null;document.getElementById('authScreen').style.display='flex';}});
 }
 function showApp(){document.getElementById('authScreen').style.display='none';loadDashboard();loadPublishers();loadCampaigns();}
+
 async function doLogin(){
   const e=v('aEmail'),p=v('aPass');
-  if(!e||!p){set2('authMsg','Fill all fields');return;}
-  set2('authMsg','Logging in...');
+  if(!e||!p){setMsg('Sab bharo');return;}
+  setMsg('Login ho raha hai...');
   const {error}=await sb.auth.signInWithPassword({email:e,password:p});
-  if(error)set2('authMsg',error.message);
+  if(error){setMsg(error.message);return;}
+  setMsg('');
 }
 async function doLogout(){await sb.auth.signOut();}
-function set2(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+function setMsg(t){document.getElementById('authMsg').textContent=t;}
 
 async function loadDashboard(){
   const [p,cl,cv,wd]=await Promise.all([
@@ -273,14 +278,14 @@ async function loadDashboard(){
     sb.from('withdrawals').select('*,publishers(name)').eq('status','pending').order('requested_at',{ascending:false}).limit(5)
   ]);
   const approved=(cv.data||[]).filter(c=>c.status==='approved');
-  set2('ds-pubs',(p.data||[]).length);
-  set2('ds-clicks',(cl.data||[]).length);
-  set2('ds-convs',(cv.data||[]).length);
-  set2('ds-payout','₹'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
-  set2('topWd',(wd.data||[]).length);
+  set('ds-pubs',(p.data||[]).length);
+  set('ds-clicks',(cl.data||[]).length);
+  set('ds-convs',(cv.data||[]).length);
+  set('ds-payout','₹'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
+  set('topWd',(wd.data||[]).length);
 
   const wt=document.getElementById('dashWd');
-  if(!(wd.data||[]).length){wt.innerHTML='<tr class="empty-row"><td colspan="3">None pending</td></tr>';}
+  if(!(wd.data||[]).length){wt.innerHTML='<tr class="empty-row"><td colspan="3">Koi pending nahi</td></tr>';}
   else wt.innerHTML=wd.data.map(w=>`<tr>
     <td>${w.publishers?.name||'—'}</td>
     <td style="font-weight:700;color:var(--yellow)">₹${Number(w.amount).toFixed(2)}</td>
@@ -288,10 +293,4 @@ async function loadDashboard(){
   </tr>`).join('');
 
   const {data:rc}=await sb.from('conversions').select('*,publishers(name)').order('created_at',{ascending:false}).limit(8);
-  const ct=document.getElementById('dashConvs');
-  if(!(rc||[]).length){ct.innerHTML='<tr class="empty-row"><td colspan="3">No conversions</td></tr>';}
-  else ct.innerHTML=rc.map(r=>`<tr>
-    <td>${r.publishers?.name||'—'}</td>
-    <td style="color:var(--green);font-weight:700">₹${Number(r.payout).toFixed(2)}</td>
-    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
- 
+  const ct=document.getElementById('dashCon
