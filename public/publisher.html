@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AffTrack — Publisher</title>
+<title>CashFlix Affiliate — Publisher</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -12,22 +12,23 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
 #authScreen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
 .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:94%;max-width:400px;}
-.auth-logo{font-family:var(--display);font-size:26px;font-weight:800;margin-bottom:6px;}
+.auth-logo{font-family:var(--display);font-size:24px;font-weight:800;margin-bottom:4px;}
 .auth-logo span{color:var(--accent);}
 .auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;}
 .tab-row{display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;}
-.tab-btn{flex:1;padding:8px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:14px;font-weight:500;border-radius:7px;cursor:pointer;transition:.2s;}
+.tab-btn{flex:1;padding:9px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:14px;font-weight:500;border-radius:7px;cursor:pointer;transition:.2s;}
 .tab-btn.on{background:var(--accent);color:white;}
-.inp{width:100%;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
+.inp{width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
 .inp:focus{border-color:var(--accent);}
 .inp::placeholder{color:var(--muted);}
-.btn-full{width:100%;padding:12px;background:var(--accent);border:none;border-radius:10px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;}
+.btn-full{width:100%;padding:13px;background:var(--accent);border:none;border-radius:10px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-full:hover{background:#e04e22;}
 .auth-msg{font-size:12px;text-align:center;margin-top:12px;min-height:18px;}
 .auth-msg.err{color:var(--red);}
 .auth-msg.ok{color:var(--green);}
 .sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s;}
 .logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
-.logo h2{font-family:var(--display);font-size:20px;font-weight:800;}
+.logo h2{font-family:var(--display);font-size:18px;font-weight:800;line-height:1.2;}
 .logo h2 span{color:var(--accent);}
 .logo p{font-size:11px;color:var(--muted);margin-top:2px;}
 .nav-sec{padding:10px 20px 4px;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;}
@@ -38,7 +39,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .user-avatar{width:34px;height:34px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:14px;flex-shrink:0;}
 .user-name{font-size:13px;font-weight:600;}
 .user-email{font-size:11px;color:var(--muted);}
-.logout-btn{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;}
+.logout-btn{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;}
 .logout-btn:hover{color:var(--red);}
 .main{margin-left:230px;flex:1;display:flex;flex-direction:column;}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
@@ -91,7 +92,7 @@ select option{background:var(--surface2);}
 .log-time{color:#3D4566;min-width:60px;}
 .log-ok{color:var(--green);}
 .log-err{color:var(--red);}
-.log-url{color:#6B9FFF;}
+.log-url{color:#6B9FFF;word-break:break-all;}
 .pb-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
 .pb-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
@@ -114,30 +115,36 @@ select option{background:var(--surface2);}
 
 <div id="authScreen">
   <div class="auth-box">
-    <div class="auth-logo">Aff<span>Track</span></div>
-    <p class="auth-sub">Publisher Affiliate Platform</p>
+    <div class="auth-logo">💰 Cash<span>Flix</span></div>
+    <p class="auth-sub">Affiliate Publisher Platform</p>
     <div class="tab-row">
-      <button class="tab-btn on" onclick="switchTab('login')">Login</button>
-      <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+      <button class="tab-btn on" id="tabLogin" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
     </div>
+
     <div id="loginForm">
-      <input class="inp" id="loginEmail" type="email" placeholder="Email address">
-      <input class="inp" id="loginPass" type="password" placeholder="Password">
+      <input class="inp" id="loginEmail" type="email" placeholder="Email address" autocomplete="email">
+      <input class="inp" id="loginPass" type="password" placeholder="Password" autocomplete="current-password">
       <button class="btn-full" onclick="doLogin()">Login</button>
     </div>
+
     <div id="signupForm" style="display:none">
       <input class="inp" id="signupName" type="text" placeholder="Full Name">
-      <input class="inp" id="signupEmail" type="email" placeholder="Email address">
-      <input class="inp" id="signupPhone" type="tel" placeholder="Phone Number">
-      <input class="inp" id="signupPass" type="password" placeholder="Password (min 6 chars)">
-      <button class="btn-full" onclick="doSignup()">Create Account</button>
+      <input class="inp" id="signupEmail" type="email" placeholder="Email address" autocomplete="email">
+      <input class="inp" id="signupPhone" type="tel" placeholder="Phone Number (optional)">
+      <input class="inp" id="signupPass" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password">
+      <button class="btn-full" id="signupBtn" onclick="doSignup()">Create Account</button>
     </div>
+
     <div class="auth-msg" id="authMsg"></div>
   </div>
 </div>
 
 <aside class="sidebar" id="sidebar">
-  <div class="logo"><h2>Aff<span>Track</span></h2><p>Publisher Panel</p></div>
+  <div class="logo">
+    <h2>💰 Cash<span>Flix</span></h2>
+    <p>Affiliate Publisher Panel</p>
+  </div>
   <nav style="flex:1;overflow-y:auto">
     <div class="nav-sec">Main</div>
     <div class="nav-item on" onclick="go('dashboard',this)">⬡ Dashboard</div>
@@ -157,7 +164,7 @@ select option{background:var(--surface2);}
   <div class="sidebar-user">
     <div class="user-avatar" id="sideAvatar">?</div>
     <div><div class="user-name" id="sideName">—</div><div class="user-email" id="sideEmail">—</div></div>
-    <button class="logout-btn" onclick="doLogout()">⏻</button>
+    <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
   </div>
 </aside>
 
@@ -253,7 +260,7 @@ select option{background:var(--surface2);}
           </div>
         </div>
         <table><thead><tr><th>Date</th><th>Campaign</th><th>Clicks</th><th>Convs</th><th>Earned</th></tr></thead>
-        <tbody id="perfTable"><tr class="empty-row"><td colspan="5">Select date range and click Filter</td></tr></tbody></table>
+        <tbody id="perfTable"><tr class="empty-row"><td colspan="5">Select date range</td></tr></tbody></table>
       </div>
     </div>
 
@@ -286,8 +293,4 @@ select option{background:var(--surface2);}
 <div class="modal-bg" id="pbModal">
   <div class="modal">
     <div class="modal-head"><h3>Add Postback</h3><button class="x-btn" onclick="closePBModal()">✕</button></div>
-    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select...</option></select></div>
-    <div class="form-group"><label>Event</label>
-      <select id="pbEvent"><option value="install">Install</option><option value="trial">Trial</option><option value="lead">Lead</option><option value="purchase">Purchase</option></select>
-    </div>
-    <div class="
+    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select...</o
