@@ -13,6 +13,7 @@ const sb = createClient(
 );
 
 // TRACKING LINK
+// Publisher share karta hai: /click/?offer_id=100&pub=1
 app.get('/click/', async (req, res) => {
   const campShortId = req.query.offer_id;
   const pubShortId = req.query.pub;
@@ -25,11 +26,13 @@ app.get('/click/', async (req, res) => {
   const { data: pub } = await sb.from('publishers').select('*').eq('short_id', pubShortId).eq('status','active').single();
   if (!pub) return res.status(404).send('Publisher not found');
 
+  // Unique click ID
   const clickId = `${campShortId}_${pubShortId}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
   const ua = req.headers['user-agent'] || '';
   const device = /mobile|android|iphone/i.test(ua) ? 'mobile' : 'desktop';
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.ip;
 
+  // Link save karo
   let { data: link } = await sb.from('affiliate_links').select('*').eq('publisher_id', pub.id).eq('campaign_id', camp.id).single();
   if (!link) {
     const { data: newLink } = await sb.from('affiliate_links').insert({
@@ -39,19 +42,23 @@ app.get('/click/', async (req, res) => {
     link = newLink;
   }
 
+  // Click save karo
   await sb.from('clicks').insert({
     click_id: clickId, link_id: link?.id,
     publisher_id: pub.id, campaign_id: camp.id,
-    ip, device, browser: ua.slice(0,100), sub_id: null
+    ip, device, browser: ua.slice(0,100)
   });
 
-  const sep = camp.offer_url?.includes('?') ? '&' : '?';
-  const targetUrl = camp.offer_url + sep + 'aff_click_id=' + clickId;
-  console.log(`CLICK: ${clickId} | ${camp.name} | ${pub.name}`);
-  res.redirect(302, targetUrl);
+  // Partner URL mein {click_id} replace karo
+  const partnerUrl = (camp.offer_url || camp.target_url || '')
+    .replace('{click_id}', clickId)
+    .replace('{aff_click_id}', clickId);
+
+  console.log(`CLICK: ${clickId} | ${camp.name} | Pub #${pubShortId} | → ${partnerUrl}`);
+  res.redirect(302, partnerUrl);
 });
 
-// POSTBACK FROM ADVERTISER
+// POSTBACK FROM ADVERTISER (INRFlash fires here)
 app.get('/postback', async (req, res) => {
   const { click_id, event, payout } = req.query;
   console.log(`POSTBACK: click_id=${click_id} event=${event} payout=${payout}`);
@@ -68,20 +75,23 @@ app.get('/postback', async (req, res) => {
   const matchedEvent = events.find(e => e.name.toLowerCase() === eventName.toLowerCase());
   const finalPayout = parseFloat(payout) || matchedEvent?.payout || 0;
 
+  // Conversion save karo
   const { data: conv } = await sb.from('conversions').insert({
     click_id, publisher_id: click.publisher_id,
     campaign_id: click.campaign_id,
     event_name: eventName, payout: finalPayout, status: 'approved'
   }).select().single();
 
-  const { data: pub } = await sb.from('publishers').select('balance,total_earned,name').eq('id', click.publisher_id).single();
+  // Publisher balance update karo
+  const { data: pub } = await sb.from('publishers').select('balance,total_earned,name,short_id').eq('id', click.publisher_id).single();
   await sb.from('publishers').update({
     balance: (pub.balance||0) + finalPayout,
     total_earned: (pub.total_earned||0) + finalPayout
   }).eq('id', click.publisher_id);
 
-  console.log(`CONVERSION: ${eventName} | ${pub.name} | Rs.${finalPayout}`);
+  console.log(`CONVERSION: ${eventName} | Pub #${pub.short_id} ${pub.name} | ₹${finalPayout}`);
 
+  // Publisher ka postback fire karo
   const { data: pbs } = await sb.from('postbacks').select('*')
     .eq('publisher_id', click.publisher_id)
     .eq('campaign_id', click.campaign_id)
@@ -94,6 +104,7 @@ app.get('/postback', async (req, res) => {
       .replace(/{payout}/g, finalPayout)
       .replace(/{event_name}/g, eventName)
       .replace(/{offer_id}/g, camp.short_id||'')
+      .replace(/{sub_aff_id}/g, pub.short_id||'')
       .replace(/{device}/g, click.device||'')
       .replace(/{ip}/g, click.ip||'')
       .replace(/{affsub}/g, click.sub_id||'')
@@ -106,8 +117,7 @@ app.get('/postback', async (req, res) => {
       .replace(/{browser}/g, click.browser||'')
       .replace(/{gaid}/g, '')
       .replace(/{idfa}/g, '')
-      .replace(/{os}/g, '')
-      .replace(/{sub_aff_id}/g, pub.short_id||'');
+      .replace(/{os}/g, '');
 
     let responseCode = 0, status = 'failed';
     try {
@@ -124,11 +134,14 @@ app.get('/postback', async (req, res) => {
       response_code: responseCode,
       status
     });
+
     console.log(`PB FIRED: ${firedUrl} → ${responseCode}`);
   }
+
   res.send('OK');
 });
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public/publisher.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public/admin.html')));
-app.listen(process.env.PORT || 3000, () => console.log('CashFlix Running!'));
+
+app.listen(process.env.PORT || 3000, () => console.log('CashFlix Running! 🚀'));
