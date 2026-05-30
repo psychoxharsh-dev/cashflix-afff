@@ -299,4 +299,263 @@ async function loadDashboard(){
   </tr>`).join('');
 
   const {data:rc}=await sb.from('conversions').select('*,publishers(name)').order('created_at',{ascending:false}).limit(8);
+  const ct=document.getElementById('dashConvs');
+  if(!(rc||[]).length){ct.innerHTML='<tr class="empty-row"><td colspan="3">Koi conversion nahi</td></tr>';}
+  else ct.innerHTML=rc.map(r=>`<tr>
+    <td>${r.publishers?.name||'—'}</td>
+    <td style="color:var(--green);font-weight:700">Rs.${Number(r.payout).toFixed(2)}</td>
+    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
+  </tr>`).join('');
+}
+
+async function loadPublishers(){
+  const {data}=await sb.from('publishers').select('*').order('created_at',{ascending:false});
+  allPubs=data||[];renderPubs(allPubs);
+}
+function renderPubs(list){
+  const tb=document.getElementById('pubsTable');
+  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">Koi publisher nahi</td></tr>';return;}
+  tb.innerHTML=list.map(p=>`<tr>
+    <td><strong style="color:var(--accent)">#${p.short_id||'—'}</strong></td>
+    <td><strong>${p.name}</strong></td>
+    <td style="font-size:12px;color:var(--muted)">${p.email}</td>
+    <td style="font-weight:700;color:var(--green)">Rs.${Number(p.balance||0).toFixed(2)}</td>
+    <td style="color:var(--muted)">Rs.${Number(p.total_earned||0).toFixed(2)}</td>
+    <td><span class="badge ${p.status==='active'?'green':p.status==='suspended'?'red':'yellow'}">${p.status}</span></td>
+    <td style="display:flex;gap:5px;flex-wrap:wrap">
+      ${p.status==='active'
+        ?`<button class="btn btn-red btn-sm" onclick="setPubStatus('${p.id}','suspended')">Suspend</button>`
+        :`<button class="btn btn-green btn-sm" onclick="setPubStatus('${p.id}','active')">Activate</button>`}
+      <button class="btn btn-ghost btn-sm" onclick="addBal('${p.id}','${p.name}',${p.balance||0})">+Bal</button>
+    </td>
+  </tr>`).join('');
+}
+function filterPubs(q){renderPubs(allPubs.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.email.toLowerCase().includes(q.toLowerCase())));}
+async function setPubStatus(id,status){await sb.from('publishers').update({status}).eq('id',id);toast('Done','ok');loadPublishers();}
+async function addBal(id,name,cur){
+  const amt=parseFloat(prompt(`${name} ko kitna balance add karna hai?\nCurrent: Rs.${cur}`));
+  if(!amt||isNaN(amt))return;
+  await sb.from('publishers').update({balance:cur+amt,total_earned:(cur+amt)}).eq('id',id);
+  toast('Balance add ho gaya','ok');loadPublishers();
+}
+
+let allCamps=[];
+async function loadCampaigns(){
+  const {data}=await sb.from('campaigns').select('*').order('created_at',{ascending:false});
+  allCamps=data||[];
+  set('topCamps',allCamps.filter(c=>c.status==='active').length);
+  const tb=document.getElementById('campsTable');
+  if(!allCamps.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi offer nahi</td></tr>';return;}
+  tb.innerHTML=allCamps.map(c=>{
+    const events=c.events||[];
+    const evStr=events.map(e=>`${e.name}: Rs.${e.payout}`).join(' | ')||'—';
+    return `<tr>
+      <td><strong style="color:var(--accent)">#${c.short_id||'—'}</strong></td>
+      <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.description||''}</span></td>
+      <td style="font-size:12px;color:var(--green)">${evStr}</td>
+      <td><span class="badge ${c.status==='active'?'green':'yellow'}">${c.status}</span></td>
+      <td style="display:flex;gap:5px">
+        <button class="btn btn-ghost btn-sm" onclick="editCamp('${c.id}')">Edit</button>
+        <button class="btn ${c.status==='active'?'btn-yellow':'btn-green'} btn-sm" onclick="toggleCamp('${c.id}','${c.status}')">${c.status==='active'?'Pause':'Resume'}</button>
+        <button class="btn btn-red btn-sm" onclick="deleteCamp('${c.id}')">Del</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function addEventRow(name='',payout=''){
+  const div=document.createElement('div');
+  div.className='event-row';
+  div.innerHTML=`<input type="text" placeholder="Event name (e.g. Install)" class="ev-name" value="${name}">
+    <input type="number" placeholder="Payout (Rs.)" class="ev-payout" value="${payout}">
+    <button class="del-ev" onclick="this.parentElement.remove()">x</button>`;
+  document.getElementById('eventsContainer').appendChild(div);
+}
+
+function openCampModal(){
+  editCampId=null;
+  document.getElementById('campModalTitle').textContent='New Offer';
+  document.getElementById('cName').value='';
+  document.getElementById('cDesc').value='';
+  document.getElementById('cUrl').value='';
+  document.getElementById('cCat').value='CPA';
+  document.getElementById('cStatus').value='active';
+  document.getElementById('eventsContainer').innerHTML=`<div class="event-row">
+    <input type="text" placeholder="Event name (e.g. Install)" class="ev-name">
+    <input type="number" placeholder="Payout (Rs.)" class="ev-payout">
+    <button class="del-ev" onclick="this.parentElement.remove()">x</button>
+  </div>`;
+  document.getElementById('campModal').classList.add('show');
+}
+function closeCampModal(){document.getElementById('campModal').classList.remove('show');}
+
+function editCamp(id){
+  const c=allCamps.find(x=>x.id===id);if(!c)return;
+  editCampId=id;
+  document.getElementById('campModalTitle').textContent='Edit Offer';
+  document.getElementById('cName').value=c.name||'';
+  document.getElementById('cDesc').value=c.description||'';
+  document.getElementById('cUrl').value=c.offer_url||c.target_url||'';
+  document.getElementById('cCat').value=c.category||'CPA';
+  document.getElementById('cStatus').value=c.status||'active';
+  const container=document.getElementById('eventsContainer');
+  container.innerHTML='';
+  (c.events||[]).forEach(e=>addEventRow(e.name,e.payout));
+  if(!(c.events||[]).length) addEventRow();
+  document.getElementById('campModal').classList.add('show');
+}
+
+async function saveCampaign(){
+  const name=v('cName'),url=v('cUrl');
+  if(!name||!url){toast('Name aur URL zaroori hai','err');return;}
+
+  const evRows=document.querySelectorAll('#eventsContainer .event-row');
+  const events=[];
+  evRows.forEach(row=>{
+    const n=row.querySelector('.ev-name').value.trim();
+    const p=parseFloat(row.querySelector('.ev-payout').value)||0;
+    if(n)events.push({name:n,payout:p});
+  });
+  if(!events.length){toast('Kam se kam ek event add karo','err');return;}
+
+  const payload={
+    name,
+    description:v('cDesc'),
+    category:v('cCat'),
+    offer_url:url,
+    target_url:url,
+    status:v('cStatus'),
+    events
+  };
+  let error;
+  if(editCampId){({error}=await sb.from('campaigns').update(payload).eq('id',editCampId));}
+  else{({error}=await sb.from('campaigns').insert(payload));}
+  if(error){toast('Error: '+error.message,'err');return;}
+  closeCampModal();toast(editCampId?'Offer update ho gaya!':'Offer ban gaya!','ok');loadCampaigns();
+}
+
+async function toggleCamp(id,status){
+  await sb.from('campaigns').update({status:status==='active'?'paused':'active'}).eq('id',id);
+  toast('Done','ok');loadCampaigns();
+}
+async function deleteCamp(id){
+  if(!confirm('Pakka delete karna hai?'))return;
+  await sb.from('campaigns').delete().eq('id',id);
+  toast('Delete ho gaya','ok');loadCampaigns();
+}
+
+async function loadConversions(){
+  const status=v('convStatus');
+  let q=sb.from('conversions').select('*,publishers(name),campaigns(name)').order('created_at',{ascending:false}).limit(100);
+  if(status)q=q.eq('status',status);
+  const {data}=await q;
+  const tb=document.getElementById('convsTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="8">Koi conversion nahi</td></tr>';return;}
+  tb.innerHTML=data.map(r=>`<tr>
+    <td style="font-size:11px;color:var(--muted)">${fmtTime(r.created_at)}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${(r.click_id||'').slice(0,12)}...</td>
+    <td>${r.publishers?.name||'—'}</td>
+    <td>${r.campaigns?.name||'—'}</td>
+    <td><span class="badge blue">${r.event_name}</span></td>
+    <td style="font-weight:700;color:var(--green)">Rs.${Number(r.payout).toFixed(2)}</td>
+    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
+    <td>${r.status==='pending'?`
+      <button class="btn btn-green btn-sm" onclick="setConv('${r.id}','${r.publisher_id}',${r.payout},'approved')">Approve</button>
+      <button class="btn btn-red btn-sm" onclick="setConv('${r.id}','${r.publisher_id}',${r.payout},'rejected')">Reject</button>`:'—'}
+    </td>
+  </tr>`).join('');
+}
+async function setConv(id,pubId,payout,status){
+  await sb.from('conversions').update({status}).eq('id',id);
+  if(status==='approved'){
+    const {data:pub}=await sb.from('publishers').select('balance,total_earned').eq('id',pubId).single();
+    await sb.from('publishers').update({balance:(pub.balance||0)+payout,total_earned:(pub.total_earned||0)+payout}).eq('id',pubId);
+  }
+  toast('Done','ok');loadConversions();
+}
+
+async function loadWithdrawals(){
+  const filter=v('wdFilter');
+  let q=sb.from('withdrawals').select('*,publishers(name)').order('requested_at',{ascending:false});
+  if(filter)q=q.eq('status',filter);
+  const {data}=await q;
+  const tb=document.getElementById('wdTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">Koi withdrawal nahi</td></tr>';return;}
+  tb.innerHTML=data.map(w=>`<tr>
+    <td><strong>${w.publishers?.name||'—'}</strong></td>
+    <td style="font-weight:700;color:var(--yellow)">Rs.${Number(w.amount).toFixed(2)}</td>
+    <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${w.upi_id}</td>
+    <td style="font-size:11px;color:var(--muted)">${fmtDate(w.requested_at)}</td>
+    <td><span class="badge ${w.status==='paid'?'green':w.status==='rejected'?'red':'yellow'}">${w.status}</span></td>
+    <td>${w.status==='pending'?`
+      <button class="btn btn-green btn-sm" onclick="approveWd('${w.id}','${w.publisher_id}',${w.amount})">Paid</button>
+      <button class="btn btn-red btn-sm" onclick="rejectWd('${w.id}','${w.publisher_id}',${w.amount})">Reject</button>`:'—'}
+    </td>
+  </tr>`).join('');
+}
+async function approveWd(id,pubId,amount){
+  if(!confirm('Mark as paid?'))return;
+  await sb.from('withdrawals').update({status:'paid',processed_at:new Date().toISOString()}).eq('id',id);
+  toast('Paid ho gaya','ok');loadWithdrawals();loadDashboard();
+}
+async function rejectWd(id,pubId,amount){
+  if(!confirm('Reject karke balance wapas?'))return;
+  await sb.from('withdrawals').update({status:'rejected',note:'Admin ne reject kiya',processed_at:new Date().toISOString()}).eq('id',id);
+  const {data:pub}=await sb.from('publishers').select('balance').eq('id',pubId).single();
+  await sb.from('publishers').update({balance:(pub.balance||0)+amount}).eq('id',pubId);
+  toast('Reject ho gaya','ok');loadWithdrawals();
+}
+
+async function loadClicks(){
+  const {data}=await sb.from('clicks').select('*,publishers(name),campaigns(name)').order('clicked_at',{ascending:false}).limit(100);
+  const tb=document.getElementById('clicksTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">Koi click nahi</td></tr>';return;}
+  tb.innerHTML=data.map(c=>`<tr>
+    <td style="font-size:11px;color:var(--muted)">${fmtTime(c.clicked_at)}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${(c.click_id||'').slice(0,16)}...</td>
+    <td>${c.publishers?.name||'—'}</td>
+    <td>${c.campaigns?.name||'—'}</td>
+    <td style="color:var(--muted)">${c.device||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${c.ip||'—'}</td>
+  </tr>`).join('');
+}
+
+async function loadPBLogs(){
+  const {data}=await sb.from('postback_logs').select('*,publishers(name)').order('fired_at',{ascending:false}).limit(100);
+  const tb=document.getElementById('pbLogsTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi log nahi</td></tr>';return;}
+  tb.innerHTML=data.map(l=>`<tr>
+    <td style="font-size:11px;color:var(--muted)">${fmtTime(l.fired_at)}</td>
+    <td>${l.publishers?.name||'—'}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--blue);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.fired_url||'—'}</td>
+    <td><span class="badge ${l.response_code===200?'green':'red'}">${l.response_code||'ERR'}</span></td>
+    <td><span class="badge ${l.status==='success'?'green':'red'}">${l.status}</span></td>
+  </tr>`).join('');
+}
+
+function go(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  el.classList.add('on');
+  set('pageTitle',el.textContent.trim());
+  if(id==='dashboard')loadDashboard();
+  if(id==='publishers')loadPublishers();
+  if(id==='campaigns')loadCampaigns();
+  if(id==='conversions')loadConversions();
+  if(id==='withdrawals')loadWithdrawals();
+  if(id==='clicks')loadClicks();
+  if(id==='pblogs')loadPBLogs();
+}
+
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
+function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
+function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'OK':'ERR'}</span> ${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+init();
+</script>
+</body>
+</html>
   
