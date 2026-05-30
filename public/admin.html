@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CashFlix Affiliate — Admin</title>
+<title>CashFlix — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0A0C18;--surface:#10132A;--surface2:#181C35;--border:rgba(255,255,255,0.06);--accent:#7C5CFC;--green:#22D3A0;--orange:#FF6B35;--red:#FF4D6D;--yellow:#FFD166;--blue:#00D4FF;--text:#E8ECFF;--muted:#5B6290;--font:'Outfit',sans-serif;--mono:'DM Mono',monospace;--display:'Syne',sans-serif;}
+:root{--bg:#0A0C18;--surface:#10132A;--surface2:#181C35;--border:rgba(255,255,255,0.06);--accent:#7C5CFC;--green:#22D3A0;--red:#FF4D6D;--yellow:#FFD166;--blue:#00D4FF;--text:#E8ECFF;--muted:#5B6290;--font:'Outfit',sans-serif;--mono:'DM Mono',monospace;--display:'Syne',sans-serif;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
 #authScreen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
@@ -17,12 +17,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 .inp{width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
 .inp:focus{border-color:var(--accent);}
 .inp::placeholder{color:var(--muted);}
-.btn-full{width:100%;padding:13px;background:var(--accent);border:none;border-radius:9px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
-.btn-full:hover{background:#6a4ce0;}
+.btn-full{width:100%;padding:13px;background:var(--accent);border:none;border-radius:9px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;}
 .auth-msg{font-size:12px;text-align:center;margin-top:10px;min-height:16px;color:var(--red);}
 .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
 .logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
-.logo h2{font-family:var(--display);font-size:18px;font-weight:800;line-height:1.2;}
+.logo h2{font-family:var(--display);font-size:18px;font-weight:800;}
 .logo h2 span{color:var(--accent);}
 .logo p{font-size:11px;color:var(--muted);margin-top:2px;}
 .admin-badge{margin:12px 20px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,0.25);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:var(--accent);text-align:center;letter-spacing:1px;}
@@ -57,12 +56,11 @@ tbody tr:hover{background:rgba(255,255,255,0.015);}
 .badge.yellow{background:rgba(255,209,102,0.12);color:var(--yellow);}
 .badge.red{background:rgba(255,77,109,0.12);color:var(--red);}
 .badge.blue{background:rgba(0,212,255,0.12);color:var(--blue);}
-.badge.orange{background:rgba(255,107,53,0.12);color:var(--orange);}
 .btn{padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;}
-.btn-accent{background:var(--accent);color:white;}.btn-accent:hover{background:#6a4ce0;}
-.btn-green{background:rgba(34,211,160,0.15);color:var(--green);border:1px solid rgba(34,211,160,0.25);}.btn-green:hover{background:rgba(34,211,160,0.3);}
-.btn-red{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.2);}.btn-red:hover{background:rgba(255,77,109,0.25);}
-.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-accent{background:var(--accent);color:white;}
+.btn-green{background:rgba(34,211,160,0.15);color:var(--green);border:1px solid rgba(34,211,160,0.25);}
+.btn-red{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.2);}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
 .btn-yellow{background:rgba(255,209,102,0.12);color:var(--yellow);border:1px solid rgba(255,209,102,0.2);}
 .btn-sm{padding:4px 10px;font-size:11px;}
 .form-group{margin-bottom:14px;}
@@ -73,10 +71,14 @@ select option{background:var(--surface2);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-bg.show{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:94%;max-width:520px;max-height:90vh;overflow-y:auto;}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
 .modal-head h3{font-family:var(--display);font-size:17px;font-weight:700;}
 .x-btn{background:var(--surface2);border:none;color:var(--muted);width:30px;height:30px;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.event-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+.event-row input{flex:1;padding:8px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;}
+.event-row input:focus{border-color:var(--accent);}
+.event-row .del-ev{background:rgba(255,77,109,0.12);color:var(--red);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:14px;}
 .toast{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
 .toast-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideIn .3s ease;min-width:240px;}
 .toast-item.ok{border-color:rgba(34,211,160,0.3);}
@@ -89,7 +91,7 @@ select option{background:var(--surface2);}
 
 <div id="authScreen">
   <div class="auth-box">
-    <div class="auth-logo">💰 Cash<span>Flix</span> <span style="font-size:12px;background:rgba(124,92,252,0.2);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:var(--font)">ADMIN</span></div>
+    <div class="auth-logo">CashFlix <span>Admin</span></div>
     <p style="color:var(--muted);font-size:12px;margin-bottom:24px">Admin access only</p>
     <input class="inp" id="aEmail" type="email" placeholder="Admin email">
     <input class="inp" id="aPass" type="password" placeholder="Password">
@@ -99,39 +101,39 @@ select option{background:var(--surface2);}
 </div>
 
 <aside class="sidebar">
-  <div class="logo"><h2>💰 Cash<span>Flix</span></h2><p>Admin Panel</p></div>
-  <div class="admin-badge">⚡ ADMIN</div>
+  <div class="logo"><h2>CashFlix</h2><p>Admin Panel</p></div>
+  <div class="admin-badge">ADMIN</div>
   <nav style="flex:1;overflow-y:auto">
     <div class="nav-sec">Overview</div>
-    <div class="nav-item on" onclick="go('dashboard',this)">📊 Dashboard</div>
+    <div class="nav-item on" onclick="go('dashboard',this)">Dashboard</div>
     <div class="nav-sec">Manage</div>
-    <div class="nav-item" onclick="go('publishers',this)">👥 Publishers</div>
-    <div class="nav-item" onclick="go('campaigns',this)">📢 Campaigns</div>
-    <div class="nav-item" onclick="go('conversions',this)">✅ Conversions</div>
-    <div class="nav-item" onclick="go('withdrawals',this)">💸 Withdrawals</div>
+    <div class="nav-item" onclick="go('publishers',this)">Publishers</div>
+    <div class="nav-item" onclick="go('campaigns',this)">Offers</div>
+    <div class="nav-item" onclick="go('conversions',this)">Conversions</div>
+    <div class="nav-item" onclick="go('withdrawals',this)">Withdrawals</div>
     <div class="nav-sec">Reports</div>
-    <div class="nav-item" onclick="go('clicks',this)">👆 Clicks</div>
-    <div class="nav-item" onclick="go('pblogs',this)">⌨ PB Logs</div>
+    <div class="nav-item" onclick="go('clicks',this)">Clicks</div>
+    <div class="nav-item" onclick="go('pblogs',this)">PB Logs</div>
   </nav>
-  <div class="logout-link" onclick="doLogout()">⏻ Logout</div>
+  <div class="logout-link" onclick="doLogout()">Logout</div>
 </aside>
 
 <main class="main">
   <header class="topbar">
     <h1 id="pageTitle">Dashboard</h1>
     <div style="display:flex;gap:16px;font-size:13px">
-      <span>⏳ Pending WD: <strong id="topWd" style="color:var(--yellow)">0</strong></span>
-      <span>📢 Live: <strong id="topCamps" style="color:var(--green)">0</strong></span>
+      <span>Pending WD: <strong id="topWd" style="color:var(--yellow)">0</strong></span>
+      <span>Live Offers: <strong id="topCamps" style="color:var(--green)">0</strong></span>
     </div>
   </header>
   <div class="content">
 
     <div class="page on" id="pg-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-lbl">Publishers</div><div class="stat-val" id="ds-pubs">0</div><div class="stat-sub">Total registered</div></div>
-        <div class="stat-card"><div class="stat-lbl">Total Clicks</div><div class="stat-val" id="ds-clicks">0</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card"><div class="stat-lbl">Publishers</div><div class="stat-val" id="ds-pubs">0</div><div class="stat-sub">Total</div></div>
+        <div class="stat-card"><div class="stat-lbl">Clicks</div><div class="stat-val" id="ds-clicks">0</div><div class="stat-sub">All time</div></div>
         <div class="stat-card"><div class="stat-lbl">Conversions</div><div class="stat-val" id="ds-convs">0</div><div class="stat-sub">All time</div></div>
-        <div class="stat-card"><div class="stat-lbl">Total Payout</div><div class="stat-val" id="ds-payout">₹0</div><div class="stat-sub">Approved</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Payout</div><div class="stat-val" id="ds-payout">Rs.0</div><div class="stat-sub">Approved</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="card">
@@ -150,19 +152,19 @@ select option{background:var(--surface2);}
     <div class="page" id="pg-publishers">
       <div class="card">
         <div class="card-header"><h3>All Publishers</h3>
-          <input style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;width:180px" placeholder="🔍 Search..." oninput="filterPubs(this.value)">
+          <input style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;width:180px" placeholder="Search..." oninput="filterPubs(this.value)">
         </div>
-        <table><thead><tr><th>Name</th><th>Email</th><th>Balance</th><th>Earned</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="pubsTable"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody></table>
+        <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Balance</th><th>Earned</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="pubsTable"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody></table>
       </div>
     </div>
 
     <div class="page" id="pg-campaigns">
-      <button class="btn btn-accent" style="margin-bottom:16px" onclick="openCampModal()">+ New Campaign</button>
+      <button class="btn btn-accent" style="margin-bottom:16px" onclick="openCampModal()">+ New Offer</button>
       <div class="card">
-        <div class="card-header"><h3>All Campaigns</h3></div>
-        <table><thead><tr><th>Name</th><th>Install</th><th>Trial</th><th>Lead</th><th>Purchase</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="campsTable"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody></table>
+        <div class="card-header"><h3>All Offers</h3></div>
+        <table><thead><tr><th>ID</th><th>Offer</th><th>Events & Payouts</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="campsTable"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody></table>
       </div>
     </div>
 
@@ -176,7 +178,7 @@ select option{background:var(--surface2);}
             <button class="btn btn-ghost btn-sm" onclick="loadConversions()">Refresh</button>
           </div>
         </div>
-        <table><thead><tr><th>Time</th><th>Click ID</th><th>Publisher</th><th>Campaign</th><th>Event</th><th>Payout</th><th>Status</th><th>Action</th></tr></thead>
+        <table><thead><tr><th>Time</th><th>Click ID</th><th>Publisher</th><th>Offer</th><th>Event</th><th>Payout</th><th>Status</th><th>Action</th></tr></thead>
         <tbody id="convsTable"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody></table>
       </div>
     </div>
@@ -196,7 +198,7 @@ select option{background:var(--surface2);}
     <div class="page" id="pg-clicks">
       <div class="card">
         <div class="card-header"><h3>All Clicks</h3><button class="btn btn-ghost btn-sm" onclick="loadClicks()">Refresh</button></div>
-        <table><thead><tr><th>Time</th><th>Click ID</th><th>Publisher</th><th>Campaign</th><th>Device</th><th>IP</th></tr></thead>
+        <table><thead><tr><th>Time</th><th>Click ID</th><th>Publisher</th><th>Offer</th><th>Device</th><th>IP</th></tr></thead>
         <tbody id="clicksTable"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody></table>
       </div>
     </div>
@@ -212,32 +214,37 @@ select option{background:var(--surface2);}
   </div>
 </main>
 
-<!-- CAMPAIGN MODAL -->
+<!-- OFFER MODAL -->
 <div class="modal-bg" id="campModal">
   <div class="modal">
-    <div class="modal-head"><h3 id="campModalTitle">New Campaign</h3><button class="x-btn" onclick="closeCampModal()">✕</button></div>
-    <div class="form-group"><label>Campaign Name</label><input id="cName" type="text" placeholder="e.g. Mobile Xpression"></div>
+    <div class="modal-head"><h3 id="campModalTitle">New Offer</h3><button class="x-btn" onclick="closeCampModal()">x</button></div>
+    <div class="form-group"><label>Offer Name</label><input id="cName" type="text" placeholder="e.g. GlamGlidder Pro"></div>
     <div class="form-group"><label>Description</label><input id="cDesc" type="text" placeholder="Short description"></div>
-    <div class="form-group"><label>Target URL (user yahan jayega)</label><input id="cUrl" type="url" placeholder="https://advertiser.com/lp"></div>
+    <div class="form-group"><label>Offer URL (advertiser link with {click_id})</label><input id="cUrl" type="url" placeholder="https://track.inrflash.com/click?offer=88&aff=YOUR_ID&aff_click_id={click_id}"></div>
     <div class="form-group"><label>Category</label>
       <select id="cCat"><option>CPA</option><option>CPL</option><option>CPI</option></select>
     </div>
+
     <div style="background:rgba(34,211,160,0.06);border:1px solid rgba(34,211,160,0.15);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:12px;text-transform:uppercase">Payout Per Event (₹) — 0 matlab disabled</div>
-      <div class="form-row">
-        <div class="form-group"><label>📲 Install</label><input id="cInstall" type="number" value="0"></div>
-        <div class="form-group"><label>🔖 Trial</label><input id="cTrial" type="number" value="0"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase">Events & Payouts</div>
+        <button class="btn btn-green btn-sm" onclick="addEventRow()">+ Add Event</button>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>📋 Lead</label><input id="cLead" type="number" value="0"></div>
-        <div class="form-group"><label>💳 Purchase</label><input id="cPurchase" type="number" value="0"></div>
+      <div id="eventsContainer">
+        <div class="event-row">
+          <input type="text" placeholder="Event name (e.g. Install)" class="ev-name">
+          <input type="number" placeholder="Payout (Rs.)" class="ev-payout">
+          <button class="del-ev" onclick="this.parentElement.remove()">x</button>
+        </div>
       </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">Aap multiple events add kar sakte ho — Install, Trial, Lead, Deposit etc.</div>
     </div>
+
     <div class="form-group"><label>Status</label>
       <select id="cStatus"><option value="active">Active</option><option value="paused">Paused</option></select>
     </div>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-accent" style="flex:1" onclick="saveCampaign()">Save Campaign</button>
+      <button class="btn btn-accent" style="flex:1" onclick="saveCampaign()">Save Offer</button>
       <button class="btn btn-ghost" onclick="closeCampModal()">Cancel</button>
     </div>
   </div>
@@ -262,10 +269,9 @@ function showApp(){document.getElementById('authScreen').style.display='none';lo
 async function doLogin(){
   const e=v('aEmail'),p=v('aPass');
   if(!e||!p){setMsg('Sab bharo');return;}
-  setMsg('Login ho raha hai...');
+  setMsg('...');
   const {error}=await sb.auth.signInWithPassword({email:e,password:p});
-  if(error){setMsg(error.message);return;}
-  setMsg('');
+  if(error)setMsg(error.message); else setMsg('');
 }
 async function doLogout(){await sb.auth.signOut();}
 function setMsg(t){document.getElementById('authMsg').textContent=t;}
@@ -281,245 +287,16 @@ async function loadDashboard(){
   set('ds-pubs',(p.data||[]).length);
   set('ds-clicks',(cl.data||[]).length);
   set('ds-convs',(cv.data||[]).length);
-  set('ds-payout','₹'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
+  set('ds-payout','Rs.'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
   set('topWd',(wd.data||[]).length);
 
   const wt=document.getElementById('dashWd');
   if(!(wd.data||[]).length){wt.innerHTML='<tr class="empty-row"><td colspan="3">Koi pending nahi</td></tr>';}
   else wt.innerHTML=wd.data.map(w=>`<tr>
     <td>${w.publishers?.name||'—'}</td>
-    <td style="font-weight:700;color:var(--yellow)">₹${Number(w.amount).toFixed(2)}</td>
-    <td><button class="btn btn-green btn-sm" onclick="approveWd('${w.id}','${w.publisher_id}',${w.amount})">Pay ✓</button></td>
+    <td style="font-weight:700;color:var(--yellow)">Rs.${Number(w.amount).toFixed(2)}</td>
+    <td><button class="btn btn-green btn-sm" onclick="approveWd('${w.id}','${w.publisher_id}',${w.amount})">Pay</button></td>
   </tr>`).join('');
 
   const {data:rc}=await sb.from('conversions').select('*,publishers(name)').order('created_at',{ascending:false}).limit(8);
-  const ct=document.getElementById('dashConvs');
-  if(!(rc||[]).length){ct.innerHTML='<tr class="empty-row"><td colspan="3">Koi conversion nahi</td></tr>';}
-  else ct.innerHTML=rc.map(r=>`<tr>
-    <td>${r.publishers?.name||'—'}</td>
-    <td style="color:var(--green);font-weight:700">₹${Number(r.payout).toFixed(2)}</td>
-    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
-  </tr>`).join('');
-}
-
-async function loadPublishers(){
-  const {data}=await sb.from('publishers').select('*').order('created_at',{ascending:false});
-  allPubs=data||[];renderPubs(allPubs);
-}
-function renderPubs(list){
-  const tb=document.getElementById('pubsTable');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">Koi publisher nahi</td></tr>';return;}
-  tb.innerHTML=list.map(p=>`<tr>
-    <td><strong>${p.name}</strong></td>
-    <td style="font-size:12px;color:var(--muted)">${p.email}</td>
-    <td style="font-weight:700;color:var(--green)">₹${Number(p.balance||0).toFixed(2)}</td>
-    <td style="color:var(--muted)">₹${Number(p.total_earned||0).toFixed(2)}</td>
-    <td><span class="badge ${p.status==='active'?'green':p.status==='suspended'?'red':'yellow'}">${p.status}</span></td>
-    <td style="display:flex;gap:5px;flex-wrap:wrap">
-      ${p.status==='active'
-        ?`<button class="btn btn-red btn-sm" onclick="setPubStatus('${p.id}','suspended')">Suspend</button>`
-        :`<button class="btn btn-green btn-sm" onclick="setPubStatus('${p.id}','active')">Activate</button>`}
-      <button class="btn btn-ghost btn-sm" onclick="addBal('${p.id}','${p.name}',${p.balance||0})">+ Bal</button>
-    </td>
-  </tr>`).join('');
-}
-function filterPubs(q){renderPubs(allPubs.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.email.toLowerCase().includes(q.toLowerCase())));}
-async function setPubStatus(id,status){
-  await sb.from('publishers').update({status}).eq('id',id);
-  toast('Done','ok');loadPublishers();
-}
-async function addBal(id,name,cur){
-  const amt=parseFloat(prompt(`${name} ko kitna balance add karna hai? (Current: ₹${cur})`));
-  if(!amt||isNaN(amt))return;
-  await sb.from('publishers').update({balance:cur+amt,total_earned:(cur+amt)}).eq('id',id);
-  toast('Balance add ho gaya','ok');loadPublishers();
-}
-
-let allCamps=[];
-async function loadCampaigns(){
-  const {data}=await sb.from('campaigns').select('*').order('created_at',{ascending:false});
-  allCamps=data||[];
-  set('topCamps',allCamps.filter(c=>c.status==='active').length);
-  const tb=document.getElementById('campsTable');
-  if(!allCamps.length){tb.innerHTML='<tr class="empty-row"><td colspan="7">Koi campaign nahi</td></tr>';return;}
-  tb.innerHTML=allCamps.map(c=>`<tr>
-    <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.description||''}</span></td>
-    <td style="color:var(--green);font-weight:600">${c.payout_install>0?'₹'+c.payout_install:'—'}</td>
-    <td style="color:var(--green);font-weight:600">${c.payout_trial>0?'₹'+c.payout_trial:'—'}</td>
-    <td style="color:var(--green);font-weight:600">${c.payout_lead>0?'₹'+c.payout_lead:'—'}</td>
-    <td style="color:var(--green);font-weight:600">${c.payout_purchase>0?'₹'+c.payout_purchase:'—'}</td>
-    <td><span class="badge ${c.status==='active'?'green':'yellow'}">${c.status}</span></td>
-    <td style="display:flex;gap:5px">
-      <button class="btn btn-ghost btn-sm" onclick="editCamp('${c.id}')">Edit</button>
-      <button class="btn ${c.status==='active'?'btn-yellow':'btn-green'} btn-sm" onclick="toggleCamp('${c.id}','${c.status}')">${c.status==='active'?'Pause':'Resume'}</button>
-      <button class="btn btn-red btn-sm" onclick="deleteCamp('${c.id}')">Del</button>
-    </td>
-  </tr>`).join('');
-}
-function openCampModal(){
-  editCampId=null;
-  document.getElementById('campModalTitle').textContent='New Campaign';
-  ['cName','cDesc','cUrl'].forEach(i=>document.getElementById(i).value='');
-  ['cInstall','cTrial','cLead','cPurchase'].forEach(i=>document.getElementById(i).value='0');
-  document.getElementById('cStatus').value='active';
-  document.getElementById('campModal').classList.add('show');
-}
-function closeCampModal(){document.getElementById('campModal').classList.remove('show');}
-function editCamp(id){
-  const c=allCamps.find(x=>x.id===id);if(!c)return;
-  editCampId=id;
-  document.getElementById('campModalTitle').textContent='Edit Campaign';
-  document.getElementById('cName').value=c.name||'';
-  document.getElementById('cDesc').value=c.description||'';
-  document.getElementById('cUrl').value=c.target_url||'';
-  document.getElementById('cCat').value=c.category||'CPA';
-  document.getElementById('cInstall').value=c.payout_install||0;
-  document.getElementById('cTrial').value=c.payout_trial||0;
-  document.getElementById('cLead').value=c.payout_lead||0;
-  document.getElementById('cPurchase').value=c.payout_purchase||0;
-  document.getElementById('cStatus').value=c.status||'active';
-  document.getElementById('campModal').classList.add('show');
-}
-async function saveCampaign(){
-  const name=v('cName'),url=v('cUrl');
-  if(!name||!url){toast('Name aur URL zaroori hai','err');return;}
-  const payload={
-    name,description:v('cDesc'),category:v('cCat'),target_url:url,status:v('cStatus'),
-    payout_install:parseFloat(document.getElementById('cInstall').value)||0,
-    payout_trial:parseFloat(document.getElementById('cTrial').value)||0,
-    payout_lead:parseFloat(document.getElementById('cLead').value)||0,
-    payout_purchase:parseFloat(document.getElementById('cPurchase').value)||0
-  };
-  let error;
-  if(editCampId){({error}=await sb.from('campaigns').update(payload).eq('id',editCampId));}
-  else{({error}=await sb.from('campaigns').insert(payload));}
-  if(error){toast('Error: '+error.message,'err');return;}
-  closeCampModal();toast(editCampId?'Campaign update ho gaya!':'Campaign ban gaya!','ok');loadCampaigns();
-}
-async function toggleCamp(id,status){
-  await sb.from('campaigns').update({status:status==='active'?'paused':'active'}).eq('id',id);
-  toast('Done','ok');loadCampaigns();
-}
-async function deleteCamp(id){
-  if(!confirm('Pakka delete karna hai?'))return;
-  await sb.from('campaigns').delete().eq('id',id);
-  toast('Delete ho gaya','ok');loadCampaigns();
-}
-
-async function loadConversions(){
-  const status=v('convStatus');
-  let q=sb.from('conversions').select('*,publishers(name),campaigns(name)').order('created_at',{ascending:false}).limit(100);
-  if(status)q=q.eq('status',status);
-  const {data}=await q;
-  const tb=document.getElementById('convsTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="8">Koi conversion nahi</td></tr>';return;}
-  tb.innerHTML=data.map(r=>`<tr>
-    <td style="font-size:11px;color:var(--muted)">${fmtTime(r.created_at)}</td>
-    <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${(r.click_id||'').slice(0,12)}...</td>
-    <td>${r.publishers?.name||'—'}</td>
-    <td>${r.campaigns?.name||'—'}</td>
-    <td><span class="badge blue">${r.event_name}</span></td>
-    <td style="font-weight:700;color:var(--green)">₹${Number(r.payout).toFixed(2)}</td>
-    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
-    <td>${r.status==='pending'?`
-      <button class="btn btn-green btn-sm" onclick="setConv('${r.id}','${r.publisher_id}',${r.payout},'approved')">✓</button>
-      <button class="btn btn-red btn-sm" onclick="setConv('${r.id}','${r.publisher_id}',${r.payout},'rejected')">✗</button>`:'—'}
-    </td>
-  </tr>`).join('');
-}
-async function setConv(id,pubId,payout,status){
-  await sb.from('conversions').update({status}).eq('id',id);
-  if(status==='approved'){
-    const {data:pub}=await sb.from('publishers').select('balance,total_earned').eq('id',pubId).single();
-    await sb.from('publishers').update({
-      balance:(pub.balance||0)+payout,
-      total_earned:(pub.total_earned||0)+payout
-    }).eq('id',pubId);
-  }
-  toast('Conversion '+status,'ok');loadConversions();
-}
-
-async function loadWithdrawals(){
-  const filter=v('wdFilter');
-  let q=sb.from('withdrawals').select('*,publishers(name)').order('requested_at',{ascending:false});
-  if(filter)q=q.eq('status',filter);
-  const {data}=await q;
-  const tb=document.getElementById('wdTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">Koi withdrawal nahi</td></tr>';return;}
-  tb.innerHTML=data.map(w=>`<tr>
-    <td><strong>${w.publishers?.name||'—'}</strong></td>
-    <td style="font-weight:700;color:var(--yellow)">₹${Number(w.amount).toFixed(2)}</td>
-    <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${w.upi_id}</td>
-    <td style="font-size:11px;color:var(--muted)">${fmtDate(w.requested_at)}</td>
-    <td><span class="badge ${w.status==='paid'?'green':w.status==='rejected'?'red':'yellow'}">${w.status}</span></td>
-    <td>${w.status==='pending'?`
-      <button class="btn btn-green btn-sm" onclick="approveWd('${w.id}','${w.publisher_id}',${w.amount})">Paid ✓</button>
-      <button class="btn btn-red btn-sm" onclick="rejectWd('${w.id}','${w.publisher_id}',${w.amount})">Reject</button>`:'—'}
-    </td>
-  </tr>`).join('');
-}
-async function approveWd(id,pubId,amount){
-  if(!confirm('Mark as paid karna hai?'))return;
-  await sb.from('withdrawals').update({status:'paid',processed_at:new Date().toISOString()}).eq('id',id);
-  toast('Paid mark ho gaya','ok');loadWithdrawals();loadDashboard();
-}
-async function rejectWd(id,pubId,amount){
-  if(!confirm('Reject karke balance wapas karna hai?'))return;
-  await sb.from('withdrawals').update({status:'rejected',note:'Admin ne reject kiya',processed_at:new Date().toISOString()}).eq('id',id);
-  const {data:pub}=await sb.from('publishers').select('balance').eq('id',pubId).single();
-  await sb.from('publishers').update({balance:(pub.balance||0)+amount}).eq('id',pubId);
-  toast('Reject ho gaya, balance wapas','ok');loadWithdrawals();
-}
-
-async function loadClicks(){
-  const {data}=await sb.from('clicks').select('*,publishers(name),campaigns(name)').order('clicked_at',{ascending:false}).limit(100);
-  const tb=document.getElementById('clicksTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">Koi click nahi</td></tr>';return;}
-  tb.innerHTML=data.map(c=>`<tr>
-    <td style="font-size:11px;color:var(--muted)">${fmtTime(c.clicked_at)}</td>
-    <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${(c.click_id||'').slice(0,14)}...</td>
-    <td>${c.publishers?.name||'—'}</td>
-    <td>${c.campaigns?.name||'—'}</td>
-    <td style="color:var(--muted)">${c.device||'—'}</td>
-    <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${c.ip||'—'}</td>
-  </tr>`).join('');
-}
-
-async function loadPBLogs(){
-  const {data}=await sb.from('postback_logs').select('*,publishers(name)').order('fired_at',{ascending:false}).limit(100);
-  const tb=document.getElementById('pbLogsTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi log nahi</td></tr>';return;}
-  tb.innerHTML=data.map(l=>`<tr>
-    <td style="font-size:11px;color:var(--muted)">${fmtTime(l.fired_at)}</td>
-    <td>${l.publishers?.name||'—'}</td>
-    <td style="font-family:var(--mono);font-size:11px;color:var(--blue);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.fired_url||'—'}</td>
-    <td><span class="badge ${l.response_code===200?'green':'red'}">${l.response_code||'ERR'}</span></td>
-    <td><span class="badge ${l.status==='success'?'green':'red'}">${l.status}</span></td>
-  </tr>`).join('');
-}
-
-function go(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
-  document.getElementById('pg-'+id).classList.add('on');
-  el.classList.add('on');
-  set('pageTitle',el.textContent.trim());
-  if(id==='dashboard')loadDashboard();
-  if(id==='publishers')loadPublishers();
-  if(id==='campaigns')loadCampaigns();
-  if(id==='conversions')loadConversions();
-  if(id==='withdrawals')loadWithdrawals();
-  if(id==='clicks')loadClicks();
-  if(id==='pblogs')loadPBLogs();
-}
-
-function v(id){return document.getElementById(id)?.value?.trim()||'';}
-function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
-function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
-function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
-function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'✅':'❌'}</span>${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
-
-init();
-</script>
-</body>
-</html>
+  
