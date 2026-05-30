@@ -3,189 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CashFlix Affiliate — Publisher</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>CashFlix Affiliate</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0D0F1A;--surface:#13162A;--surface2:#1A1E35;--border:rgba(255,255,255,0.07);--accent:#FF5C2B;--green:#22D3A0;--blue:#4F9EFF;--yellow:#FFD166;--red:#FF4D6D;--text:#F0F2FF;--muted:#6B7494;--font:'Outfit',sans-serif;--mono:'DM Mono',monospace;--display:'Syne',sans-serif;}
+:root{
+  --bg:#F0F4FF;
+  --white:#FFFFFF;
+  --blue:#2563EB;
+  --blue2:#1D4ED8;
+  --blue-light:#EFF6FF;
+  --blue-mid:#DBEAFE;
+  --border:#BFDBFE;
+  --text:#1E3A5F;
+  --muted:#64748B;
+  --green:#059669;
+  --green-light:#ECFDF5;
+  --red:#DC2626;
+  --red-light:#FEF2F2;
+  --yellow:#D97706;
+  --yellow-light:#FFFBEB;
+  --font:'Inter',sans-serif;
+  --mono:'DM Mono',monospace;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
-#authScreen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
-.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:94%;max-width:400px;}
-.auth-logo{font-family:var(--display);font-size:24px;font-weight:800;margin-bottom:4px;}
-.auth-logo span{color:var(--accent);}
-.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;}
-.tab-row{display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;}
+
+/* AUTH */
+#authScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.auth-box{background:var(--white);border-radius:24px;padding:40px;width:94%;max-width:420px;box-shadow:0 25px 60px rgba(0,0,0,0.2);}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.auth-logo-icon{width:42px;height:42px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:800;}
+.auth-logo-text{font-size:22px;font-weight:800;color:var(--text);}
+.auth-logo-text span{color:var(--blue);}
+.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;margin-left:52px;}
+.tab-row{display:flex;background:var(--blue-light);border-radius:10px;padding:4px;margin-bottom:24px;}
 .tab-btn{flex:1;padding:9px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:14px;font-weight:500;border-radius:7px;cursor:pointer;transition:.2s;}
-.tab-btn.on{background:var(--accent);color:white;}
-.inp{width:100%;padding:12px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
-.inp:focus{border-color:var(--accent);}
+.tab-btn.on{background:var(--blue);color:white;box-shadow:0 2px 8px rgba(37,99,235,0.4);}
+.inp{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
+.inp:focus{border-color:var(--blue);background:white;}
 .inp::placeholder{color:var(--muted);}
-.btn-full{width:100%;padding:13px;background:var(--accent);border:none;border-radius:10px;color:white;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
-.btn-full:hover{background:#e04e22;}
+.btn-full{width:100%;padding:13px;background:var(--blue);border:none;border-radius:10px;color:white;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
+.btn-full:hover{background:var(--blue2);}
 .auth-msg{font-size:12px;text-align:center;margin-top:12px;min-height:18px;}
 .auth-msg.err{color:var(--red);}
 .auth-msg.ok{color:var(--green);}
-.sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s;}
-.logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
-.logo h2{font-family:var(--display);font-size:18px;font-weight:800;line-height:1.2;}
-.logo h2 span{color:var(--accent);}
-.logo p{font-size:11px;color:var(--muted);margin-top:2px;}
-.nav-sec{padding:10px 20px 4px;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--muted);transition:.15s;border-left:3px solid transparent;}
-.nav-item:hover{color:var(--text);background:var(--surface2);}
-.nav-item.on{color:var(--accent);background:rgba(255,92,43,0.08);border-left-color:var(--accent);}
-.sidebar-user{padding:16px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;margin-top:auto;}
-.user-avatar{width:34px;height:34px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:14px;flex-shrink:0;}
-.user-name{font-size:13px;font-weight:600;}
-.user-email{font-size:11px;color:var(--muted);}
-.logout-btn{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;}
-.logout-btn:hover{color:var(--red);}
-.main{margin-left:230px;flex:1;display:flex;flex-direction:column;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-.topbar h1{font-family:var(--display);font-size:18px;font-weight:700;}
-.balance-pill{background:rgba(255,92,43,0.15);color:var(--accent);font-family:var(--display);font-weight:700;font-size:15px;padding:6px 16px;border-radius:20px;border:1px solid rgba(255,92,43,0.3);}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--blue);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s;box-shadow:4px 0 20px rgba(37,99,235,0.2);}
+.logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.15);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:16px;font-weight:800;}
+.logo h2{font-size:18px;font-weight:800;color:white;}
+.logo h2 span{color:#93C5FD;}
+.logo p{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;margin-left:46px;}
+.nav-sec{padding:16px 20px 6px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:1.5px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.7);transition:.15s;border-left:3px solid transparent;margin:1px 0;}
+.nav-item:hover{color:white;background:rgba(255,255,255,0.1);}
+.nav-item.on{color:white;background:rgba(255,255,255,0.15);border-left-color:white;font-weight:600;}
+.sidebar-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;gap:10px;margin-top:auto;}
+.user-avatar{width:34px;height:34px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:700;font-size:14px;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:white;}
+.user-email{font-size:11px;color:rgba(255,255,255,0.6);}
+.logout-btn{margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:16px;}
+.logout-btn:hover{color:white;}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.topbar h1{font-size:18px;font-weight:700;color:var(--text);}
+.balance-pill{background:var(--blue);color:white;font-weight:700;font-size:15px;padding:7px 18px;border-radius:20px;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
 .hburg{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;}
 .content{padding:22px;flex:1;}
 .page{display:none;}.page.on{display:block;}
+
+/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.stat-card.blue-card{background:var(--blue);border-color:var(--blue);}
 .stat-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.stat-val{font-family:var(--display);font-size:28px;font-weight:800;margin:4px 0 2px;}
+.stat-card.blue-card .stat-lbl{color:rgba(255,255,255,0.7);}
+.stat-val{font-size:28px;font-weight:800;margin:4px 0 2px;color:var(--text);}
+.stat-card.blue-card .stat-val{color:white;}
 .stat-sub{font-size:11px;color:var(--muted);}
+.stat-card.blue-card .stat-sub{color:rgba(255,255,255,0.6);}
 .stat-icon{font-size:22px;margin-bottom:8px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;}
-.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.card-header h3{font-family:var(--display);font-size:15px;font-weight:700;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--white);}
+.card-header h3{font-size:15px;font-weight:700;color:var(--text);}
 table{width:100%;border-collapse:collapse;}
-thead th{padding:10px 20px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;background:var(--surface2);border-bottom:1px solid var(--border);}
-tbody td{padding:14px 20px;font-size:13px;border-bottom:1px solid var(--border);}
+thead th{padding:10px 20px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;background:var(--blue-light);border-bottom:1px solid var(--border);}
+tbody td{padding:14px 20px;font-size:13px;border-bottom:1px solid #F1F5F9;color:var(--text);}
 tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:rgba(255,255,255,0.02);}
+tbody tr:hover{background:var(--blue-light);}
 .empty-row td{text-align:center;color:var(--muted);padding:30px;}
+
+/* BADGES */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
-.badge.green{background:rgba(34,211,160,0.12);color:var(--green);}
-.badge.orange{background:rgba(255,92,43,0.12);color:var(--accent);}
-.badge.blue{background:rgba(79,158,255,0.12);color:var(--blue);}
-.badge.yellow{background:rgba(255,209,102,0.12);color:var(--yellow);}
-.badge.red{background:rgba(255,77,109,0.12);color:var(--red);}
+.badge.green{background:var(--green-light);color:var(--green);}
+.badge.blue{background:var(--blue-mid);color:var(--blue);}
+.badge.yellow{background:var(--yellow-light);color:var(--yellow);}
+.badge.red{background:var(--red-light);color:var(--red);}
+
+/* BTNS */
 .btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;}
-.btn-accent{background:var(--accent);color:white;}.btn-accent:hover{background:#e04e22;}
-.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
-.btn-danger{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.2);}
+.btn-blue{background:var(--blue);color:white;box-shadow:0 2px 6px rgba(37,99,235,0.25);}
+.btn-blue:hover{background:var(--blue2);}
+.btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #FECACA;}
 .btn-sm{padding:5px 12px;font-size:12px;}
+
+/* FORMS */
 .form-group{margin-bottom:14px;}
 .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.2s;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue);background:white;}
 .form-group textarea{resize:vertical;min-height:80px;}
-select option{background:var(--surface2);}
-.url-box{display:flex;gap:8px;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
+
+/* URL BOX */
+.url-box{display:flex;gap:8px;align-items:center;background:var(--blue-light);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
 .url-text{font-family:var(--mono);font-size:12px;color:var(--blue);flex:1;word-break:break-all;}
-.copy-btn{flex-shrink:0;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;}
-.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn{flex-shrink:0;background:var(--blue);color:white;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:none;font-weight:600;}
+.copy-btn:hover{background:var(--blue2);}
+
+/* PARAMS */
 .params-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
-.param-chip{padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;transition:.15s;}
-.param-chip:hover{border-color:var(--accent);color:var(--accent);}
-.console-box{background:#080B14;border-radius:10px;padding:14px;font-family:var(--mono);font-size:12px;min-height:180px;max-height:360px;overflow-y:auto;}
-.log-entry{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;gap:10px;}
-.log-time{color:#3D4566;min-width:60px;}
-.log-ok{color:var(--green);}
-.log-err{color:var(--red);}
-.log-url{color:#6B9FFF;word-break:break-all;}
-.pb-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.param-chip{padding:4px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;transition:.15s;}
+.param-chip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+
+/* CONSOLE */
+.console-box{background:#0F172A;border-radius:10px;padding:14px;font-family:var(--mono);font-size:12px;min-height:180px;max-height:360px;overflow-y:auto;}
+.log-entry{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:10px;}
+.log-time{color:#475569;min-width:65px;}
+.log-ok{color:#34D399;}
+.log-err{color:#F87171;}
+.log-url{color:#60A5FA;word-break:break-all;}
+
+/* PB ITEM */
+.pb-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
 .pb-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(30,58,95,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-bg.show{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--white);border-radius:18px;padding:26px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.2);}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
-.modal-head h3{font-family:var(--display);font-size:18px;font-weight:700;}
-.x-btn{background:var(--surface2);border:none;color:var(--muted);width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;}
+.modal-head h3{font-size:18px;font-weight:700;color:var(--text);}
+.x-btn{background:var(--bg);border:none;color:var(--muted);width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:90;}
 .overlay.show{display:block;}
+
+/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
-.toast-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:slideIn .3s ease;min-width:260px;}
-.toast-item.ok{border-color:rgba(34,211,160,0.3);}
-.toast-item.err{border-color:rgba(255,77,109,0.3);}
+.toast-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.12);animation:slideIn .3s ease;min-width:260px;color:var(--text);}
+.toast-item.ok{border-left:4px solid var(--green);}
+.toast-item.err{border-left:4px solid var(--red);}
 @keyframes slideIn{from{opacity:0;transform:translateY(20px);}}
-@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.hburg{display:block}.stats-grid{grid-template-columns:1fr 1fr}}
+
+/* SEARCH */
+.search-inp{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:200px;}
+.search-inp:focus{border-color:var(--blue);}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hburg{display:block}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
 
+<!-- AUTH -->
 <div id="authScreen">
   <div class="auth-box">
-    <div class="auth-logo">💰 Cash<span>Flix</span></div>
+    <div class="auth-logo">
+      <div class="auth-logo-icon">CF</div>
+      <div class="auth-logo-text">Cash<span>Flix</span></div>
+    </div>
     <p class="auth-sub">Affiliate Publisher Platform</p>
     <div class="tab-row">
       <button class="tab-btn on" id="tabLogin" onclick="switchTab('login')">Login</button>
       <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
     </div>
-
     <div id="loginForm">
-      <input class="inp" id="loginEmail" type="email" placeholder="Email address" autocomplete="email">
-      <input class="inp" id="loginPass" type="password" placeholder="Password" autocomplete="current-password">
-      <button class="btn-full" onclick="doLogin()">Login</button>
+      <input class="inp" id="loginEmail" type="email" placeholder="Email address">
+      <input class="inp" id="loginPass" type="password" placeholder="Password">
+      <button class="btn-full" onclick="doLogin()">Sign In</button>
     </div>
-
     <div id="signupForm" style="display:none">
       <input class="inp" id="signupName" type="text" placeholder="Full Name">
-      <input class="inp" id="signupEmail" type="email" placeholder="Email address" autocomplete="email">
+      <input class="inp" id="signupEmail" type="email" placeholder="Email address">
       <input class="inp" id="signupPhone" type="tel" placeholder="Phone Number (optional)">
-      <input class="inp" id="signupPass" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password">
+      <input class="inp" id="signupPass" type="password" placeholder="Password (min 6 chars)">
       <button class="btn-full" id="signupBtn" onclick="doSignup()">Create Account</button>
     </div>
-
     <div class="auth-msg" id="authMsg"></div>
   </div>
 </div>
 
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="logo">
-    <h2>💰 Cash<span>Flix</span></h2>
-    <p>Affiliate Publisher Panel</p>
+    <div class="logo-wrap">
+      <div class="logo-icon">CF</div>
+      <h2>Cash<span>Flix</span></h2>
+    </div>
+    <p>Publisher Panel</p>
   </div>
   <nav style="flex:1;overflow-y:auto">
     <div class="nav-sec">Main</div>
-    <div class="nav-item on" onclick="go('dashboard',this)">⬡ Dashboard</div>
-    <div class="nav-item" onclick="go('campaigns',this)">📢 Campaigns</div>
-    <div class="nav-item" onclick="go('mylinks',this)">🔗 My Links</div>
-    <div class="nav-item" onclick="go('postback',this)">⚡ Postback</div>
+    <div class="nav-item on" onclick="go('dashboard',this)">Dashboard</div>
+    <div class="nav-item" onclick="go('campaigns',this)">Campaigns</div>
+    <div class="nav-item" onclick="go('mylinks',this)">My Links</div>
+    <div class="nav-item" onclick="go('postback',this)">Postback</div>
     <div class="nav-sec">Finance</div>
-    <div class="nav-item" onclick="go('withdraw',this)">💸 Withdraw</div>
-    <div class="nav-item" onclick="go('withhistory',this)">🕐 History</div>
-    <div class="nav-item" onclick="go('upi',this)">💳 Save UPI</div>
+    <div class="nav-item" onclick="go('withdraw',this)">Withdraw</div>
+    <div class="nav-item" onclick="go('withhistory',this)">Withdraw History</div>
+    <div class="nav-item" onclick="go('upi',this)">Save UPI ID</div>
     <div class="nav-sec">Reports</div>
-    <div class="nav-item" onclick="go('performance',this)">📊 Performance</div>
-    <div class="nav-item" onclick="go('pbconsole',this)">⌨ PB Console</div>
+    <div class="nav-item" onclick="go('performance',this)">Performance</div>
+    <div class="nav-item" onclick="go('pbconsole',this)">Postback Console</div>
     <div class="nav-sec">Account</div>
-    <div class="nav-item" onclick="go('profile',this)">👤 Profile</div>
+    <div class="nav-item" onclick="go('profile',this)">Profile</div>
   </nav>
   <div class="sidebar-user">
     <div class="user-avatar" id="sideAvatar">?</div>
     <div><div class="user-name" id="sideName">—</div><div class="user-email" id="sideEmail">—</div></div>
-    <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
+    <button class="logout-btn" onclick="doLogout()">logout</button>
   </div>
 </aside>
 
 <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
+<!-- MAIN -->
 <main class="main">
   <header class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
-      <button class="hburg" onclick="toggleSidebar()">☰</button>
+      <button class="hburg" onclick="toggleSidebar()">menu</button>
       <h1 id="pageTitle">Dashboard</h1>
     </div>
-    <div class="balance-pill">₹ <span id="topBalance">0.00</span></div>
+    <div class="balance-pill">Rs. <span id="topBalance">0.00</span></div>
   </header>
   <div class="content">
 
+    <!-- DASHBOARD -->
     <div class="page on" id="pg-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon">👆</div><div class="stat-lbl">Total Clicks</div><div class="stat-val" id="st-clicks">0</div><div class="stat-sub">All time</div></div>
-        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-lbl">Conversions</div><div class="stat-val" id="st-convs">0</div><div class="stat-sub">Approved</div></div>
-        <div class="stat-card"><div class="stat-icon">₹</div><div class="stat-lbl">Total Earned</div><div class="stat-val" id="st-earned">₹0</div><div class="stat-sub">Lifetime</div></div>
-        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-lbl">Pending</div><div class="stat-val" id="st-pending">0</div><div class="stat-sub">Conversions</div></div>
+        <div class="stat-card blue-card">
+          <div class="stat-icon">clicks</div>
+          <div class="stat-lbl">Total Clicks</div>
+          <div class="stat-val" id="st-clicks">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">conv</div>
+          <div class="stat-lbl">Conversions</div>
+          <div class="stat-val" id="st-convs">0</div>
+          <div class="stat-sub">Approved</div>
+        </div>
+        <div class="stat-card blue-card">
+          <div class="stat-icon">earn</div>
+          <div class="stat-lbl">Total Earned</div>
+          <div class="stat-val" id="st-earned">Rs.0</div>
+          <div class="stat-sub">Lifetime</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">pend</div>
+          <div class="stat-lbl">Pending</div>
+          <div class="stat-val" id="st-pending">0</div>
+          <div class="stat-sub">Conversions</div>
+        </div>
       </div>
       <div class="card">
         <div class="card-header"><h3>Recent Conversions</h3></div>
@@ -194,44 +288,58 @@ select option{background:var(--surface2);}
       </div>
     </div>
 
+    <!-- CAMPAIGNS -->
     <div class="page" id="pg-campaigns">
       <div class="card">
-        <div class="card-header"><h3>Live Campaigns</h3>
-          <input style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:200px" placeholder="🔍 Search..." oninput="filterCamps(this.value)">
+        <div class="card-header">
+          <h3>Live Campaigns</h3>
+          <input class="search-inp" placeholder="Search..." oninput="filterCamps(this.value)">
         </div>
-        <table><thead><tr><th>Campaign</th><th>Payouts</th><th>Status</th><th>Action</th></tr></thead>
+        <table><thead><tr><th>Campaign</th><th>Events & Payouts</th><th>Status</th><th>Action</th></tr></thead>
         <tbody id="campTable"><tr class="empty-row"><td colspan="4">Loading...</td></tr></tbody></table>
       </div>
     </div>
 
+    <!-- MY LINKS -->
     <div class="page" id="pg-mylinks">
       <div class="card">
         <div class="card-header"><h3>My Affiliate Links</h3></div>
-        <table><thead><tr><th>Campaign</th><th>Sub ID</th><th>Clicks</th><th>Link</th><th>Created</th></tr></thead>
+        <table><thead><tr><th>Campaign</th><th>Sub ID</th><th>Clicks</th><th>Tracking Link</th><th>Created</th></tr></thead>
         <tbody id="linksTable"><tr class="empty-row"><td colspan="5">No links yet</td></tr></tbody></table>
       </div>
     </div>
 
+    <!-- POSTBACK -->
     <div class="page" id="pg-postback">
-      <button class="btn btn-accent" style="margin-bottom:18px" onclick="openPBModal()">+ Add Postback</button>
+      <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px">
+        <div style="font-size:13px;font-weight:600;color:var(--blue);margin-bottom:8px">Your Global Postback URL</div>
+        <div class="url-box">
+          <span class="url-text" id="globalPBUrl">—</span>
+          <button class="copy-btn" onclick="copy(document.getElementById('globalPBUrl').textContent)">Copy</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">Ye URL INRFlash ya kisi bhi advertiser ko do apne postback mein</div>
+      </div>
+      <button class="btn btn-blue" style="margin-bottom:18px" onclick="openPBModal()">+ Add Postback</button>
       <div id="pbList"><div style="color:var(--muted);padding:10px">No postbacks added yet.</div></div>
     </div>
 
+    <!-- WITHDRAW -->
     <div class="page" id="pg-withdraw">
       <div class="card" style="max-width:480px">
         <div class="card-header"><h3>Withdraw Funds</h3></div>
         <div style="padding:20px">
-          <div style="background:rgba(255,92,43,0.08);border:1px solid rgba(255,92,43,0.2);border-radius:12px;padding:16px;margin-bottom:20px">
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Available Balance</div>
-            <div style="font-family:var(--display);font-size:32px;font-weight:800;color:var(--accent)">₹ <span id="wdBalance">0.00</span></div>
+          <div style="background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:12px;padding:20px;margin-bottom:20px;color:white">
+            <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:1px">Available Balance</div>
+            <div style="font-size:34px;font-weight:800;margin-top:4px">Rs. <span id="wdBalance">0.00</span></div>
           </div>
-          <div class="form-group"><label>Amount (₹)</label><input id="wdAmount" type="number" placeholder="Min ₹200"></div>
+          <div class="form-group"><label>Amount (Rs.)</label><input id="wdAmount" type="number" placeholder="Min Rs.200"></div>
           <div class="form-group"><label>UPI ID</label><input id="wdUpi" type="text" placeholder="yourname@upi"></div>
-          <button class="btn btn-accent" onclick="doWithdraw()">Request Withdrawal</button>
+          <button class="btn btn-blue" onclick="doWithdraw()">Request Withdrawal</button>
         </div>
       </div>
     </div>
 
+    <!-- WITHDRAW HISTORY -->
     <div class="page" id="pg-withhistory">
       <div class="card">
         <div class="card-header"><h3>Withdrawal History</h3></div>
@@ -240,452 +348,11 @@ select option{background:var(--surface2);}
       </div>
     </div>
 
+    <!-- UPI -->
     <div class="page" id="pg-upi">
       <div class="card" style="max-width:400px">
         <div class="card-header"><h3>Save UPI ID</h3></div>
         <div style="padding:20px">
           <div class="form-group"><label>UPI ID</label><input id="upiVal" type="text" placeholder="yourname@upi"></div>
-          <button class="btn btn-accent" onclick="saveUpi()">Save</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="page" id="pg-performance">
-      <div class="card">
-        <div class="card-header"><h3>Performance</h3>
-          <div style="display:flex;gap:8px">
-            <input type="date" id="perfFrom" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none">
-            <input type="date" id="perfTo" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none">
-            <button class="btn btn-ghost btn-sm" onclick="loadPerf()">Filter</button>
-          </div>
-        </div>
-        <table><thead><tr><th>Date</th><th>Campaign</th><th>Clicks</th><th>Convs</th><th>Earned</th></tr></thead>
-        <tbody id="perfTable"><tr class="empty-row"><td colspan="5">Select date range</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <div class="page" id="pg-pbconsole">
-      <div class="card">
-        <div class="card-header"><h3>⌨ Postback Console</h3><button class="btn btn-ghost btn-sm" onclick="loadConsole()">Refresh</button></div>
-        <div style="padding:16px">
-          <div class="console-box" id="consoleBox">
-            <div class="log-entry"><span class="log-time">--:--:--</span><span style="color:var(--muted)">No logs yet...</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="page" id="pg-profile">
-      <div class="card" style="max-width:500px">
-        <div class="card-header"><h3>Profile</h3></div>
-        <div style="padding:20px">
-          <div class="form-group"><label>Full Name</label><input id="profName" type="text"></div>
-          <div class="form-group"><label>Phone</label><input id="profPhone" type="tel"></div>
-          <button class="btn btn-accent" onclick="saveProfile()">Update</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</main>
-
-<!-- POSTBACK MODAL -->
-<div class="modal-bg" id="pbModal">
-  <div class="modal">
-    <div class="modal-head"><h3>Add Postback</h3><button class="x-btn" onclick="closePBModal()">✕</button></div>
-    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select...</option></select></div>
-    <div class="form-group"><label>Event</label>
-      <select id="pbEvent">
-        <option value="install">📲 Install</option>
-        <option value="trial">🔖 Trial</option>
-        <option value="lead">📋 Lead</option>
-        <option value="purchase">💳 Purchase</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Your Postback URL</label>
-      <textarea id="pbUrl" placeholder="https://yourtracker.com/postback?click={aff_click_id}&payout={payout}"></textarea>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:6px">👆 Parameter insert karne ke liye click karo:</div>
-      <div class="params-wrap">
-        <span class="param-chip" onclick="ins('{aff_click_id}')">{aff_click_id}</span>
-        <span class="param-chip" onclick="ins('{payout}')">{payout}</span>
-        <span class="param-chip" onclick="ins('{event_name}')">{event_name}</span>
-        <span class="param-chip" onclick="ins('{offer_id}')">{offer_id}</span>
-        <span class="param-chip" onclick="ins('{affsub}')">{affsub}</span>
-        <span class="param-chip" onclick="ins('{device}')">{device}</span>
-        <span class="param-chip" onclick="ins('{ip}')">{ip}</span>
-        <span class="param-chip" onclick="ins('{click_time}')">{click_time}</span>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-accent" style="flex:1" onclick="savePB()">Save Postback</button>
-      <button class="btn btn-ghost" onclick="closePBModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- GET LINK MODAL -->
-<div class="modal-bg" id="linkModal">
-  <div class="modal">
-    <div class="modal-head"><h3 id="linkModalTitle">Get Link</h3><button class="x-btn" onclick="document.getElementById('linkModal').classList.remove('show')">✕</button></div>
-    <div style="background:rgba(79,158,255,0.07);border:1px solid rgba(79,158,255,0.15);border-radius:10px;padding:14px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:8px;text-transform:uppercase">Is Campaign ke Payouts</div>
-      <div id="campPayouts" style="font-size:13px;line-height:2"></div>
-    </div>
-    <div class="form-group"><label>Sub ID (optional — apni tracking ke liye)</label><input id="linkSubId" type="text" placeholder="e.g. facebook_ad_1"></div>
-    <div class="form-group">
-      <label>Aapka Affiliate Link</label>
-      <div class="url-box"><span class="url-text" id="linkPreview">Neeche Generate dabao</span><button class="copy-btn" onclick="copyAffLink()">Copy</button></div>
-    </div>
-    <button class="btn btn-accent" style="width:100%" onclick="generateLink()">🔗 Generate Link</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const SUPABASE_URL='https://brdiufojignimvdamkjr.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZGl1Zm9qaWduaW12ZGFta2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzcxMzAsImV4cCI6MjA5NTU1MzEzMH0.RRPoR4BQXa8g54OZRRTU7RatkIzH5THWzJKEXFY7cZA';
-const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
-let SESSION=null,PUBLISHER=null,CAMPAIGNS=[],linkCampId=null;
-
-async function init(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){SESSION=session;await loadPublisher();showApp();}
-  sb.auth.onAuthStateChange(async(_,s)=>{
-    if(s){SESSION=s;await loadPublisher();showApp();}
-    else{SESSION=null;PUBLISHER=null;document.getElementById('authScreen').style.display='flex';}
-  });
-}
-
-function showApp(){
-  document.getElementById('authScreen').style.display='none';
-  set('sideName',PUBLISHER?.name||'Publisher');
-  set('sideEmail',SESSION?.user?.email||'');
-  document.getElementById('sideAvatar').textContent=(PUBLISHER?.name||'P')[0].toUpperCase();
-  updateBalance();
-  loadDashboard();
-  loadCampaigns();
-}
-
-function switchTab(t){
-  document.getElementById('loginForm').style.display=t==='login'?'block':'none';
-  document.getElementById('signupForm').style.display=t==='signup'?'block':'none';
-  document.getElementById('tabLogin').classList.toggle('on',t==='login');
-  document.getElementById('tabSignup').classList.toggle('on',t==='signup');
-  msg('','');
-}
-
-function msg(txt,type){
-  const el=document.getElementById('authMsg');
-  el.textContent=txt;
-  el.className='auth-msg'+(type?' '+type:'');
-}
-
-async function doLogin(){
-  const e=v('loginEmail'),p=v('loginPass');
-  if(!e||!p){msg('Email aur password bharo','err');return;}
-  msg('Login ho raha hai...');
-  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
-  if(error){msg(error.message,'err');return;}
-  msg('');
-}
-
-async function doSignup(){
-  const btn=document.getElementById('signupBtn');
-  const name=v('signupName'),email=v('signupEmail'),phone=v('signupPhone'),pass=v('signupPass');
-  if(!name){msg('Naam bharo','err');return;}
-  if(!email){msg('Email bharo','err');return;}
-  if(!pass){msg('Password bharo','err');return;}
-  if(pass.length<6){msg('Password kam se kam 6 characters ka hona chahiye','err');return;}
-  btn.textContent='Creating...';btn.disabled=true;
-  msg('Account ban raha hai...','');
-  try{
-    const {data,error}=await sb.auth.signUp({email,password:pass});
-    if(error){msg(error.message,'err');btn.textContent='Create Account';btn.disabled=false;return;}
-    if(data?.user){
-      const {error:dbErr}=await sb.from('publishers').insert({
-        id:data.user.id,email,name,phone:phone||null,status:'active',balance:0,total_earned:0
-      });
-      if(dbErr)console.log('DB error:',dbErr.message);
-      msg('✅ Account ban gaya! Ab login karo.','ok');
-      setTimeout(()=>{
-        switchTab('login');
-        document.getElementById('loginEmail').value=email;
-        document.getElementById('loginPass').value='';
-        msg('Login karo apne account se','ok');
-      },1500);
-    }
-  }catch(e){
-    msg('Error: '+e.message,'err');
-  }
-  btn.textContent='Create Account';btn.disabled=false;
-}
-
-async function doLogout(){await sb.auth.signOut();}
-
-async function loadPublisher(){
-  if(!SESSION)return;
-  const {data}=await sb.from('publishers').select('*').eq('id',SESSION.user.id).single();
-  PUBLISHER=data;
-}
-
-function updateBalance(){
-  const b=(PUBLISHER?.balance||0).toFixed(2);
-  set('topBalance',b);set('wdBalance',b);
-}
-
-async function loadDashboard(){
-  if(!SESSION)return;
-  const pid=SESSION.user.id;
-  const [{data:cl},{data:cv}]=await Promise.all([
-    sb.from('clicks').select('id').eq('publisher_id',pid),
-    sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',pid).order('created_at',{ascending:false})
-  ]);
-  const approved=(cv||[]).filter(c=>c.status==='approved');
-  const pending=(cv||[]).filter(c=>c.status==='pending');
-  set('st-clicks',(cl||[]).length);
-  set('st-convs',approved.length);
-  set('st-earned','₹'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
-  set('st-pending',pending.length);
-  const tb=document.getElementById('recentConvs');
-  const recent=(cv||[]).slice(0,10);
-  if(!recent.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Abhi tak koi conversion nahi</td></tr>';return;}
-  tb.innerHTML=recent.map(r=>`<tr>
-    <td style="font-size:12px;color:var(--muted)">${fmtTime(r.created_at)}</td>
-    <td>${r.campaigns?.name||'—'}</td>
-    <td><span class="badge blue">${r.event_name}</span></td>
-    <td style="color:var(--green);font-weight:600">₹${Number(r.payout).toFixed(2)}</td>
-    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
-  </tr>`).join('');
-}
-
-async function loadCampaigns(){
-  const {data}=await sb.from('campaigns').select('*').eq('status','active');
-  CAMPAIGNS=data||[];
-  const sel=document.getElementById('pbCamp');
-  sel.innerHTML='<option value="">Select...</option>'+CAMPAIGNS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  renderCamps(CAMPAIGNS);
-}
-
-function renderCamps(list){
-  const tb=document.getElementById('campTable');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="4">Koi campaign nahi</td></tr>';return;}
-  tb.innerHTML=list.map(c=>`<tr>
-    <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.description||''}</span></td>
-    <td style="font-size:12px;line-height:1.9">
-      ${c.payout_install>0?`📲 Install: <strong style="color:var(--green)">₹${c.payout_install}</strong><br>`:''}
-      ${c.payout_trial>0?`🔖 Trial: <strong style="color:var(--green)">₹${c.payout_trial}</strong><br>`:''}
-      ${c.payout_lead>0?`📋 Lead: <strong style="color:var(--green)">₹${c.payout_lead}</strong><br>`:''}
-      ${c.payout_purchase>0?`💳 Purchase: <strong style="color:var(--green)">₹${c.payout_purchase}</strong>`:''}
-    </td>
-    <td><span class="badge green">● Active</span></td>
-    <td><button class="btn btn-accent btn-sm" onclick="openLinkModal('${c.id}','${c.name}',${c.payout_install||0},${c.payout_trial||0},${c.payout_lead||0},${c.payout_purchase||0})">Get Link</button></td>
-  </tr>`).join('');
-}
-
-function filterCamps(q){renderCamps(CAMPAIGNS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())));}
-
-function openLinkModal(cid,name,pi,pt,pl,pp){
-  linkCampId=cid;
-  document.getElementById('linkModalTitle').textContent=name;
-  document.getElementById('linkSubId').value='';
-  document.getElementById('linkPreview').textContent='Neeche Generate dabao';
-  let payouts='';
-  if(pi>0)payouts+=`<div>📲 Install: <strong style="color:var(--green)">₹${pi}</strong></div>`;
-  if(pt>0)payouts+=`<div>🔖 Trial: <strong style="color:var(--green)">₹${pt}</strong></div>`;
-  if(pl>0)payouts+=`<div>📋 Lead: <strong style="color:var(--green)">₹${pl}</strong></div>`;
-  if(pp>0)payouts+=`<div>💳 Purchase: <strong style="color:var(--green)">₹${pp}</strong></div>`;
-  document.getElementById('campPayouts').innerHTML=payouts||'<span style="color:var(--muted)">Payout set nahi</span>';
-  document.getElementById('linkModal').classList.add('show');
-}
-
-async function generateLink(){
-  if(!linkCampId){toast('Pehle campaign select karo','err');return;}
-  const sub=v('linkSubId');
-  const shortCode=Math.random().toString(36).slice(2,10);
-  const {error}=await sb.from('affiliate_links').insert({
-    publisher_id:SESSION.user.id,campaign_id:linkCampId,short_code:shortCode,sub_id:sub||null
-  });
-  if(error){toast('Error: '+error.message,'err');return;}
-  const url=window.location.origin+'/track/'+shortCode;
-  document.getElementById('linkPreview').textContent=url;
-  toast('Link generate ho gaya!','ok');
-}
-
-function copyAffLink(){
-  const t=document.getElementById('linkPreview').textContent;
-  if(t==='Neeche Generate dabao'){toast('Pehle link generate karo','err');return;}
-  copy(t);
-}
-
-async function loadLinks(){
-  const {data}=await sb.from('affiliate_links').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id).order('created_at',{ascending:false});
-  const tb=document.getElementById('linksTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi link nahi banaya</td></tr>';return;}
-  tb.innerHTML=data.map(l=>`<tr>
-    <td>${l.campaigns?.name||'—'}</td>
-    <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${l.sub_id||'—'}</td>
-    <td id="lc-${l.short_code}">...</td>
-    <td><div class="url-box"><span class="url-text">${window.location.origin}/track/${l.short_code}</span><button class="copy-btn" onclick="copy('${window.location.origin}/track/${l.short_code}')">Copy</button></div></td>
-    <td style="font-size:12px;color:var(--muted)">${fmtDate(l.created_at)}</td>
-  </tr>`).join('');
-  for(const l of data){
-    const {data:cl}=await sb.from('clicks').select('id').eq('link_id',l.id);
-    const el=document.getElementById(`lc-${l.short_code}`);
-    if(el)el.textContent=(cl||[]).length;
-  }
-}
-
-async function loadPostbacks(){
-  const {data}=await sb.from('postbacks').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
-  const container=document.getElementById('pbList');
-  if(!data?.length){container.innerHTML='<div style="color:var(--muted);padding:10px">Koi postback nahi add kiya.</div>';return;}
-  container.innerHTML=data.map(p=>`
-    <div class="pb-item">
-      <div class="pb-item-head">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>${p.campaigns?.name||'—'}</strong>
-          <span class="badge blue">${p.event_name}</span>
-          <span class="badge green">${p.status}</span>
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="deletePB('${p.id}')">Delete</button>
-      </div>
-      <div class="url-box"><span class="url-text">${p.postback_url}</span><button class="copy-btn" onclick="copy('${p.postback_url}')">Copy</button></div>
-    </div>`).join('');
-}
-
-function openPBModal(){document.getElementById('pbModal').classList.add('show');}
-function closePBModal(){document.getElementById('pbModal').classList.remove('show');}
-
-function ins(p){
-  const ta=document.getElementById('pbUrl');
-  const pos=ta.selectionStart||ta.value.length;
-  ta.value=ta.value.slice(0,pos)+p+ta.value.slice(pos);
-  ta.focus();
-}
-
-async function savePB(){
-  const cid=v('pbCamp'),evt=v('pbEvent'),url=v('pbUrl');
-  if(!cid||!url){toast('Sab fields bharo','err');return;}
-  const {error}=await sb.from('postbacks').insert({publisher_id:SESSION.user.id,campaign_id:cid,event_name:evt,postback_url:url});
-  if(error){toast('Error: '+error.message,'err');return;}
-  document.getElementById('pbUrl').value='';
-  closePBModal();toast('Postback save ho gaya!','ok');loadPostbacks();
-}
-
-async function deletePB(id){
-  if(!confirm('Delete karna chahte ho?'))return;
-  await sb.from('postbacks').delete().eq('id',id);
-  toast('Delete ho gaya','ok');loadPostbacks();
-}
-
-async function doWithdraw(){
-  const amount=parseFloat(v('wdAmount')),upi=v('wdUpi')||PUBLISHER?.upi_id;
-  if(!amount||amount<200){toast('Minimum ₹200 chahiye','err');return;}
-  if(!upi){toast('UPI ID bharo','err');return;}
-  if(amount>(PUBLISHER?.balance||0)){toast('Balance nahi hai itna','err');return;}
-  const {error}=await sb.from('withdrawals').insert({publisher_id:SESSION.user.id,amount,upi_id:upi});
-  if(error){toast('Error: '+error.message,'err');return;}
-  await sb.from('publishers').update({balance:(PUBLISHER.balance-amount)}).eq('id',SESSION.user.id);
-  await loadPublisher();updateBalance();
-  document.getElementById('wdAmount').value='';
-  toast('Withdrawal request bhej di!','ok');
-}
-
-async function loadWithdrawHistory(){
-  const {data}=await sb.from('withdrawals').select('*').eq('publisher_id',SESSION.user.id).order('requested_at',{ascending:false});
-  const tb=document.getElementById('wdHistory');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi withdrawal nahi</td></tr>';return;}
-  tb.innerHTML=data.map(w=>`<tr>
-    <td>${fmtDate(w.requested_at)}</td>
-    <td style="font-weight:700;color:var(--green)">₹${Number(w.amount).toFixed(2)}</td>
-    <td style="font-family:var(--mono);font-size:12px">${w.upi_id}</td>
-    <td><span class="badge ${w.status==='paid'?'green':w.status==='rejected'?'red':'yellow'}">${w.status}</span></td>
-    <td style="color:var(--muted);font-size:12px">${w.note||'—'}</td>
-  </tr>`).join('');
-}
-
-async function saveUpi(){
-  const upi=v('upiVal');if(!upi){toast('UPI ID daalo','err');return;}
-  await sb.from('publishers').update({upi_id:upi}).eq('id',SESSION.user.id);
-  await loadPublisher();toast('UPI save ho gaya!','ok');
-}
-
-async function loadPerf(){
-  const from=v('perfFrom'),to=v('perfTo');
-  let q=sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
-  if(from)q=q.gte('created_at',from);
-  if(to)q=q.lte('created_at',to+'T23:59:59');
-  const {data}=await q.order('created_at',{ascending:false});
-  const tb=document.getElementById('perfTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">Koi data nahi</td></tr>';return;}
-  const groups={};
-  for(const r of data){
-    const key=fmtDate(r.created_at)+'|'+(r.campaigns?.name||'—');
-    if(!groups[key])groups[key]={date:fmtDate(r.created_at),camp:r.campaigns?.name||'—',convs:0,earn:0};
-    groups[key].convs++;groups[key].earn+=Number(r.payout);
-  }
-  tb.innerHTML=Object.values(groups).map(g=>`<tr>
-    <td>${g.date}</td><td>${g.camp}</td><td>—</td><td>${g.convs}</td>
-    <td style="color:var(--green);font-weight:700">₹${g.earn.toFixed(2)}</td>
-  </tr>`).join('');
-}
-
-async function loadConsole(){
-  const {data}=await sb.from('postback_logs').select('*').eq('publisher_id',SESSION.user.id).order('fired_at',{ascending:false}).limit(50);
-  const box=document.getElementById('consoleBox');
-  if(!data?.length){box.innerHTML='<div class="log-entry"><span class="log-time">--:--</span><span style="color:var(--muted)">Koi log nahi</span></div>';return;}
-  box.innerHTML=data.map(l=>`<div class="log-entry">
-    <span class="log-time">${fmtTime(l.fired_at)}</span>
-    <span class="${l.status==='success'?'log-ok':'log-err'}">[${l.response_code||'ERR'}]</span>
-    <span class="log-url">${l.fired_url||'—'}</span>
-  </div>`).join('');
-}
-
-async function loadProfile(){
-  document.getElementById('profName').value=PUBLISHER?.name||'';
-  document.getElementById('profPhone').value=PUBLISHER?.phone||'';
-  document.getElementById('upiVal').value=PUBLISHER?.upi_id||'';
-}
-
-async function saveProfile(){
-  const name=v('profName'),phone=v('profPhone');
-  if(!name){toast('Naam bharo','err');return;}
-  await sb.from('publishers').update({name,phone:phone||null}).eq('id',SESSION.user.id);
-  await loadPublisher();
-  set('sideName',name);
-  document.getElementById('sideAvatar').textContent=name[0].toUpperCase();
-  toast('Profile update ho gaya!','ok');
-}
-
-function go(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
-  document.getElementById('pg-'+id).classList.add('on');
-  el.classList.add('on');
-  set('pageTitle',el.textContent.trim().replace(/^.\s*/,''));
-  closeSidebar();
-  if(id==='dashboard')loadDashboard();
-  if(id==='mylinks')loadLinks();
-  if(id==='postback')loadPostbacks();
-  if(id==='withhistory')loadWithdrawHistory();
-  if(id==='pbconsole')loadConsole();
-  if(id==='profile')loadProfile();
-  if(id==='withdraw')updateBalance();
-}
-
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
-function v(id){return document.getElementById(id)?.value?.trim()||'';}
-function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
-function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
-function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
-function copy(txt){navigator.clipboard.writeText(txt).then(()=>toast('Copy ho gaya!','ok')).catch(()=>toast('Copy failed','err'));}
-function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'✅':'❌'}</span>${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
-
-init();
-</script>
-</body>
-</html>
+          <button class="btn btn-blue" onclick="saveUpi()">Save</button>
+        
