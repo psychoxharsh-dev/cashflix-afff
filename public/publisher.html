@@ -275,4 +275,382 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
     <div class="nav-item" onclick="go('postback',this)"><span class="nav-icon">🔗</span> Postback</div>
     <div class="nav-sec">FINANCE</div>
     <div class="nav-item" onclick="go('withdraw',this)"><span class="nav-icon">💸</span> Withdraw</div>
-    <div class="nav-item" onclick="go('withhistory',this)"><span class="nav-icon">🕐</span> Withdraw Histor
+     <div class="nav-item" onclick="go('withhistory',this)"><span class="nav-icon">🕐</span> Withdraw History</div>
+    <div class="nav-item" onclick="go('upi',this)"><span class="nav-icon">💳</span> Save UPI ID</div>
+    <div class="nav-sec">REPORTS</div>
+    <div class="nav-item" onclick="go('performance',this)"><span class="nav-icon">📊</span> Performance</div>
+    <div class="nav-item" onclick="go('pbconsole',this)"><span class="nav-icon">⌨</span> Postback Console</div>
+    <div class="nav-sec">ACCOUNT</div>
+    <div class="nav-item" onclick="go('profile',this)"><span class="nav-icon">👤</span> Profile</div>
+    <div class="nav-item" onclick="doLogout()"><span class="nav-icon">🚪</span> Logout</div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-av" id="sideAvatar">?</div>
+      <div><div class="user-name" id="sideName">—</div><div class="user-email" id="sideEmail">—</div></div>
+      <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hburg" onclick="toggleSidebar()">☰</button>
+      <h1 id="pageTitle">Dashboard</h1>
+    </div>
+    <div class="balance-pill">₹<span id="topBalance">0.00</span></div>
+  </header>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page on" id="pg-dashboard">
+      <div class="chart-card">
+        <h3>📈 Clicks & leads</h3>
+        <div class="date-range">📅 <span id="dateRangeText">This month</span> ▾</div>
+        <div style="height:120px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px" id="chartArea">No data yet</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon-wrap orange">👆</div>
+          <div>
+            <div class="stat-lbl">TOTAL CLICKS</div>
+            <div class="stat-val" id="st-clicks">0</div>
+            <div class="stat-sub">In period</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap green">✅</div>
+          <div>
+            <div class="stat-lbl">TOTAL LEADS</div>
+            <div class="stat-val" id="st-leads">0</div>
+            <div class="stat-sub">Approved in period</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap blue">₹</div>
+          <div>
+            <div class="stat-lbl">EARNINGS</div>
+            <div class="stat-val" id="st-earned">₹0.00</div>
+            <div class="stat-sub">In period</div>
+          </div>
+        </div>
+      </div>
+      <div class="earnings-card">
+        <h3>🟠 Earnings</h3>
+        <div class="earnings-row">
+          <div class="earnings-label"><span style="color:var(--green)">✓</span> Approved</div>
+          <div class="earnings-amount" id="earn-approved">₹0.00</div>
+        </div>
+        <div class="earnings-row">
+          <div class="earnings-label"><span style="color:var(--orange)">🕐</span> Pending</div>
+          <div class="earnings-amount" id="earn-pending">₹0.00</div>
+        </div>
+        <div class="earnings-row">
+          <div class="earnings-label">Total</div>
+          <div class="earnings-amount" id="earn-total">₹0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS LIST -->
+    <div class="page" id="pg-campaigns">
+      <div class="camp-header">
+        <h3>📢 Campaigns</h3>
+        <p>Live offers. Click a campaign to get links and postback.</p>
+      </div>
+      <div class="search-wrap">
+        <input class="search-box" placeholder="Search..." oninput="filterCamps(this.value)" id="campSearch">
+      </div>
+      <div class="offer-list" id="offerList">
+        <div class="offer-header-row">
+          <div>ID</div><div>Campaign</div><div>Category</div><div>Status</div><div>Payout</div>
+        </div>
+        <div id="campRows" style="text-align:center;padding:30px;color:var(--muted)">Loading...</div>
+      </div>
+    </div>
+
+    <!-- OFFER DETAIL -->
+    <div class="page" id="pg-offerDetail">
+      <button class="btn-back" onclick="go('campaigns',document.querySelector('.nav-item:nth-child(2)'))">← Back</button>
+      <div class="offer-detail-header" id="offerDetailHeader"></div>
+
+      <!-- Quick Actions -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-icon green">⚡</div>
+          <div><div class="section-title">Quick Actions</div><div class="section-sub">Your tracking URL — share this link. When someone clicks and completes the task, you (pub) get paid.</div></div>
+        </div>
+        <div class="section-body">
+          <div class="link-label">Generated Link:</div>
+          <div class="link-box">
+            <span class="link-text" id="generatedLink">—</span>
+            <button class="copy-btn" onclick="copy(document.getElementById('generatedLink').textContent)">📋 Copy</button>
+          </div>
+          <div class="macro-section">
+            <div class="macro-title">Sub-ID Parameters</div>
+            <div class="macro-chips" id="subIdChips"></div>
+          </div>
+          <div class="macro-section">
+            <div class="macro-title">Tracking Macros</div>
+            <div class="macro-chips">
+              <span class="macro-chip" onclick="toggleMacro(this,'{payout}')">{payout}</span>
+              <span class="macro-chip" onclick="toggleMacro(this,'{aff_click}')">{aff_click}</span>
+            </div>
+          </div>
+          <div class="macro-section">
+            <div class="macro-title">Device & User Data</div>
+            <div class="macro-chips">
+              <span class="macro-chip" onclick="toggleMacro(this,'{gaid}')">{gaid}</span>
+              <span class="macro-chip" onclick="toggleMacro(this,'{idfa}')">{idfa}</span>
+              <span class="macro-chip" onclick="toggleMacro(this,'{device}')">{device}</span>
+              <span class="macro-chip" onclick="toggleMacro(this,'{browser}')">{browser}</span>
+              <span class="macro-chip" onclick="toggleMacro(this,'{ip}')">{ip}</span>
+              <span class="macro-chip" onclick="toggleMacro(this,'{os}')">{os}</span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--blue)">Usage: Click any macro button to toggle it in the link. Link updates in real time. Copy to copy the current link.</div>
+        </div>
+      </div>
+
+      <!-- Campaign Goals -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-icon blue">🎯</div>
+          <div><div class="section-title">Campaign Goals</div><div class="section-sub">Events for this campaign (same as postback)</div></div>
+        </div>
+        <div class="section-body" id="campGoals"></div>
+      </div>
+
+      <!-- Postbacks -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-icon orange">🔗</div>
+          <div><div class="section-title">Postbacks</div><div class="section-sub">Manage postback configurations and tracking</div></div>
+        </div>
+        <div class="section-body">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Add postback URL for this campaign. Select event, enter URL and click Save button.</p>
+          <button class="btn btn-orange" onclick="openPBModalForOffer()" style="margin-bottom:12px">+ Add Postback</button>
+          <div id="offerPBList"><div style="color:var(--muted);font-size:13px">No postbacks for this offer yet. Add one above.</div></div>
+        </div>
+      </div>
+
+      <!-- Campaign Stats -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-icon green">📊</div>
+          <div><div class="section-title">Campaign Statistics</div><div class="section-sub">Performance metrics and analytics</div></div>
+        </div>
+        <div class="section-body">
+          <div class="camp-stats-grid">
+            <div class="camp-stat"><div class="camp-stat-icon blue" style="color:white">👆</div><div class="camp-stat-val" id="cs-clicks">0</div><div class="camp-stat-lbl">TOTAL CLICKS</div></div>
+            <div class="camp-stat"><div class="camp-stat-icon green" style="color:white">✅</div><div class="camp-stat-val" id="cs-convs">0</div><div class="camp-stat-lbl">CONVERSIONS</div></div>
+            <div class="camp-stat"><div class="camp-stat-icon orange" style="color:white">👥</div><div class="camp-stat-val" id="cs-leads">N/A</div><div class="camp-stat-lbl">TOTAL LEADS</div></div>
+            <div class="camp-stat"><div class="camp-stat-icon gray" style="color:white">%</div><div class="camp-stat-val" id="cs-cvr">0.00%</div><div class="camp-stat-lbl">CVR</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTBACK PAGE -->
+    <div class="page" id="pg-postback">
+      <div class="section-card" style="margin-bottom:16px">
+        <div class="section-head">
+          <div class="section-head-icon orange">⚡</div>
+          <div><div class="section-title">Your Postback URL (INRFlash ko do)</div><div class="section-sub">Ye URL advertiser ko dena hai</div></div>
+        </div>
+        <div class="section-body">
+          <div class="link-box">
+            <span class="link-text" id="globalPBUrl">—</span>
+            <button class="copy-btn" onclick="copy(document.getElementById('globalPBUrl').textContent)">📋 Copy</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-orange" style="margin-bottom:16px" onclick="openPBModal()">+ Add Postback</button>
+      <div id="pbList"><div style="color:var(--muted);padding:10px">No postbacks added yet.</div></div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="page" id="pg-withdraw">
+      <div style="max-width:480px">
+        <div class="balance-big">
+          <div class="balance-big-lbl">Available Balance</div>
+          <div class="balance-big-val">₹<span id="wdBalance">0.00</span></div>
+        </div>
+        <div class="section-card">
+          <div class="section-body">
+            <div class="form-group"><label>Amount (₹)</label><input id="wdAmount" type="number" placeholder="Min ₹200"></div>
+            <div class="form-group"><label>UPI ID</label><input id="wdUpi" type="text" placeholder="yourname@upi"></div>
+            <button class="btn btn-orange" onclick="doWithdraw()">Request Withdrawal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WITHDRAW HISTORY -->
+    <div class="page" id="pg-withhistory">
+      <div class="section-card">
+        <div class="section-head"><div class="section-head-icon orange">🕐</div><div><div class="section-title">Withdraw History</div></div></div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:var(--bg)">
+              <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)">Date</th>
+              <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)">Amount</th>
+              <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)">UPI</th>
+              <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)">Status</th>
+            </tr></thead>
+            <tbody id="wdHistory"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">No withdrawals yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPI -->
+    <div class="page" id="pg-upi">
+      <div class="section-card" style="max-width:400px">
+        <div class="section-head"><div class="section-head-icon blue">💳</div><div><div class="section-title">Save UPI ID</div></div></div>
+        <div class="section-body">
+          <div class="form-group"><label>UPI ID</label><input id="upiVal" type="text" placeholder="yourname@upi"></div>
+          <button class="btn btn-orange" onclick="saveUpi()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE -->
+    <div class="page" id="pg-performance">
+      <div class="section-card">
+        <div class="section-head"><div class="section-head-icon orange">📊</div><div><div class="section-title">Performance Report</div><div class="section-sub">Filter by offer and date</div></div></div>
+        <div class="section-body">
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <input type="date" id="perfFrom" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;flex:1">
+            <input type="date" id="perfTo" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none;flex:1">
+            <button class="btn btn-orange btn-sm" onclick="loadPerf()" style="white-space:nowrap">✓ Apply</button>
+          </div>
+          <div id="perfContent" style="color:var(--muted);font-size:13px">Select date range and click Apply</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PB CONSOLE -->
+    <div class="page" id="pg-pbconsole">
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-icon blue">⌨</div>
+          <div><div class="section-title">Postback Console</div><div class="section-sub">Conversion aate hi tumhara postback URL hit hota hai</div></div>
+        </div>
+        <div class="section-body">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:12px;color:var(--muted)">Date | Event | Hit URL | HTTP code</div>
+            <button class="btn btn-ghost btn-sm" onclick="loadConsole()">Refresh</button>
+          </div>
+          <div class="console-box" id="consoleBox">
+            <div class="log-entry"><span class="log-time">--:--:--</span><span style="color:#475569">No logs yet...</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="pg-profile">
+      <div class="section-card" style="max-width:500px">
+        <div class="section-head"><div class="section-head-icon blue">👤</div><div><div class="section-title">Profile</div></div></div>
+        <div class="section-body">
+          <div class="form-group"><label>Full Name</label><input id="profName" type="text"></div>
+          <div class="form-group"><label>Phone</label><input id="profPhone" type="tel"></div>
+          <button class="btn btn-orange" onclick="saveProfile()">Update Profile</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- POSTBACK MODAL -->
+<div class="modal-bg" id="pbModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add Postback</h3><button class="x-btn" onclick="closePBModal()">✕</button></div>
+    <div class="form-group"><label>Campaign</label><select id="pbCamp" onchange="loadPBEvents()"><option value="">Select campaign</option></select></div>
+    <div class="form-group"><label>Event</label><select id="pbEvent"><option value="">Select event</option></select></div>
+    <div class="form-group">
+      <label>Postback URL</label>
+      <textarea id="pbUrl" placeholder="https://yourtracker.com/postback?click={aff_click_id}&payout={payout}"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin:6px 0">PARAMETERS (USE IN POSTBACK URL)</div>
+      <div class="macro-chips">
+        <span class="macro-chip" onclick="ins('{affsub}')">{affsub}</span>
+        <span class="macro-chip" onclick="ins('{affsub2}')">{affsub2}</span>
+        <span class="macro-chip" onclick="ins('{affsub3}')">{affsub3}</span>
+        <span class="macro-chip" onclick="ins('{affsub4}')">{affsub4}</span>
+        <span class="macro-chip" onclick="ins('{affsub5}')">{affsub5}</span>
+        <span class="macro-chip" onclick="ins('{aff_click_id}')">{aff_click_id}</span>
+        <span class="macro-chip" onclick="ins('{sub_aff_id}')">{sub_aff_id}</span>
+        <span class="macro-chip" onclick="ins('{offer_id}')">{offer_id}</span>
+        <span class="macro-chip" onclick="ins('{event_name}')">{event_name}</span>
+        <span class="macro-chip" onclick="ins('{payout}')">{payout}</span>
+        <span class="macro-chip" onclick="ins('{click_time}')">{click_time}</span>
+        <span class="macro-chip" onclick="ins('{track_time}')">{track_time}</span>
+        <span class="macro-chip" onclick="ins('{aff_click}')">{aff_click}</span>
+        <span class="macro-chip" onclick="ins('{gaid}')">{gaid}</span>
+        <span class="macro-chip" onclick="ins('{idfa}')">{idfa}</span>
+        <span class="macro-chip" onclick="ins('{device}')">{device}</span>
+        <span class="macro-chip" onclick="ins('{browser}')">{browser}</span>
+        <span class="macro-chip" onclick="ins('{ip}')">{ip}</span>
+        <span class="macro-chip" onclick="ins('{os}')">{os}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Tap a tag to add it to your URL.</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-orange" style="flex:1" onclick="savePB()">💾 Save</button>
+      <button class="btn btn-ghost" onclick="closePBModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://brdiufojignimvdamkjr.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZGl1Zm9qaWduaW12ZGFta2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzcxMzAsImV4cCI6MjA5NTU1MzEzMH0.RRPoR4BQXa8g54OZRRTU7RatkIzH5THWzJKEXFY7cZA';
+const BASE=window.location.origin;
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+let SESSION=null,PUBLISHER=null,CAMPAIGNS=[],currentOffer=null,activeMacros=[],pbForOffer=null;
+
+const COLORS=['#EA580C','#2563EB','#059669','#7C3AED','#DB2777','#0891B2'];
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){SESSION=session;await loadPublisher();showApp();}
+  sb.auth.onAuthStateChange(async(_,s)=>{
+    if(s){SESSION=s;await loadPublisher();showApp();}
+    else{SESSION=null;PUBLISHER=null;document.getElementById('authScreen').style.display='flex';}
+  });
+}
+
+function showApp(){
+  document.getElementById('authScreen').style.display='none';
+  set('sideName',PUBLISHER?.name||'Publisher');
+  set('sideEmail',SESSION?.user?.email||'');
+  document.getElementById('sideAvatar').textContent=(PUBLISHER?.name||'P')[0].toUpperCase();
+  set('globalPBUrl',`${BASE}/postback?click_id={aff_click_id}&event={event_name}&payout={payout}`);
+  updateBalance();
+  loadDashboard();
+  loadCampaigns();
+}
+
+function switchTab(t){
+  document.getElementById('loginForm').style.display=t==='login'?'block':'none';
+  document.getElementById('signupForm').style.display=t==='signup'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('on',t==='login');
+  document.getElementById('tabSignup').classList.toggle('on',t==='signup');
+  document.getElementById('authSwitch').innerHTML=t==='login'
+    ?'New here? <span onclick="switchTab(\'signup\')">Create an account</span>'
+    :'Been here before? <span onclick="switchTab(\'login\')">Log in</span>';
+  msg('','');
+}
+function msg(t,type){const e=document.getElementById('authMsg');e.textContent=t;e.className='auth-msg'+(type?' '+type:'');}
+
+async function doLogin(){
+  const e=v('loginEmail'),p=v('log
