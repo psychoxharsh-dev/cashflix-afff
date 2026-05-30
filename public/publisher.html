@@ -653,4 +653,357 @@ function switchTab(t){
 function msg(t,type){const e=document.getElementById('authMsg');e.textContent=t;e.className='auth-msg'+(type?' '+type:'');}
 
 async function doLogin(){
-  const e=v('loginEmail'),p=v('log
+  const e=v('loginEmail'),p=v('loginPass');
+  if(!e||!p){msg('Fill all fields','err');return;}
+  msg('Logging in...');
+  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error)msg(error.message,'err');
+}
+
+async function doSignup(){
+  const btn=document.getElementById('signupBtn');
+  const name=v('signupName'),email=v('signupEmail'),phone=v('signupPhone'),pass=v('signupPass');
+  if(!name||!email||!pass||pass.length<6){msg('Fill all fields correctly','err');return;}
+  btn.textContent='Creating...';btn.disabled=true;
+  try{
+    const {data,error}=await sb.auth.signUp({email,password:pass});
+    if(error){msg(error.message,'err');btn.textContent='Sign up';btn.disabled=false;return;}
+    if(data?.user){
+      await sb.from('publishers').insert({id:data.user.id,email,name,phone:phone||null,status:'active',balance:0,total_earned:0});
+      msg('Account created! Log in now.','ok');
+      setTimeout(()=>{switchTab('login');document.getElementById('loginEmail').value=email;},1500);
+    }
+  }catch(e){msg('Error: '+e.message,'err');}
+  btn.textContent='Sign up';btn.disabled=false;
+}
+
+async function doLogout(){await sb.auth.signOut();}
+
+async function loadPublisher(){
+  if(!SESSION)return;
+  const {data}=await sb.from('publishers').select('*').eq('id',SESSION.user.id).single();
+  PUBLISHER=data;
+}
+
+function updateBalance(){
+  const b=(PUBLISHER?.balance||0).toFixed(2);
+  set('topBalance',b);set('wdBalance',b);
+}
+
+// DASHBOARD
+async function loadDashboard(){
+  if(!SESSION)return;
+  const pid=SESSION.user.id;
+  const [{data:cl},{data:cv}]=await Promise.all([
+    sb.from('clicks').select('id').eq('publisher_id',pid),
+    sb.from('conversions').select('*').eq('publisher_id',pid)
+  ]);
+  const approved=(cv||[]).filter(c=>c.status==='approved');
+  const pending=(cv||[]).filter(c=>c.status==='pending');
+  const approvedAmt=approved.reduce((s,c)=>s+Number(c.payout),0);
+  const pendingAmt=pending.reduce((s,c)=>s+Number(c.payout),0);
+  set('st-clicks',(cl||[]).length);
+  set('st-leads',approved.length);
+  set('st-earned','₹'+approvedAmt.toFixed(2));
+  set('earn-approved','₹'+approvedAmt.toFixed(2));
+  set('earn-pending','₹'+pendingAmt.toFixed(2));
+  set('earn-total','₹'+(approvedAmt+pendingAmt).toFixed(2));
+}
+
+// CAMPAIGNS
+async function loadCampaigns(){
+  const {data}=await sb.from('campaigns').select('*').eq('status','active').order('created_at',{ascending:false});
+  CAMPAIGNS=data||[];
+  const sel=document.getElementById('pbCamp');
+  sel.innerHTML='<option value="">Select campaign</option>'+CAMPAIGNS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  renderCampList(CAMPAIGNS);
+}
+
+function renderCampList(list){
+  const container=document.getElementById('campRows');
+  if(!list.length){container.innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">No campaigns available</div>';return;}
+  container.innerHTML=list.map((c,i)=>{
+    const events=c.events||[];
+    const payout=events.length?`₹${events[0].payout}`:'—';
+    const initials=(c.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const color=COLORS[i%COLORS.length];
+    return `<div class="offer-row" onclick="openOfferDetail('${c.id}')">
+      <div class="offer-id">${c.short_id||'—'}</div>
+      <div class="offer-name-wrap">
+        <div class="offer-avatar" style="background:${color}">${initials}</div>
+        <div>
+          <div class="offer-name">${c.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.description||''}</div>
+        </div>
+      </div>
+      <div><span class="offer-cat">${c.category||'CPA'}</span></div>
+      <div><span class="offer-status">● Active</span></div>
+      <div class="offer-payout">${payout}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterCamps(q){renderCampList(CAMPAIGNS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())));}
+
+// OFFER DETAIL
+async function openOfferDetail(cid){
+  currentOffer=CAMPAIGNS.find(c=>c.id===cid);
+  if(!currentOffer)return;
+  activeMacros=[];
+  pbForOffer=cid;
+
+  // Header
+  const events=currentOffer.events||[];
+  const payout=events.length?`₹${events[0].payout}`:'₹0';
+  const initials=(currentOffer.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const color=COLORS[CAMPAIGNS.indexOf(currentOffer)%COLORS.length];
+  document.getElementById('offerDetailHeader').innerHTML=`
+    <div class="offer-detail-avatar" style="background:${color}">${initials}</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="offer-detail-name">${currentOffer.name}</div>
+        <div class="payout-badge">Rs ₹${events.length?events.map(e=>e.payout).join('/'):'0'}</div>
+      </div>
+      <div class="offer-detail-meta">Campaign ID <strong>#${currentOffer.short_id||'—'}</strong> &nbsp;|&nbsp; Created ${fmtDate(currentOffer.created_at)}</div>
+      <div><span class="status-badge">● Active</span></div>
+    </div>`;
+
+  // Generate link automatically
+  const pubShortId=PUBLISHER?.short_id||'1';
+  const baseLink=`${BASE}/click/?offer_id=${currentOffer.short_id}&pub=${pubShortId}`;
+  set('generatedLink',baseLink);
+
+  // Sub-ID chips
+  const subChips=['aff_click_id','sub_aff_id','affsub','affsub2','affsub3','affsub4','affsub5'];
+  document.getElementById('subIdChips').innerHTML=subChips.map(p=>`<span class="macro-chip" onclick="toggleMacro(this,'${p}')">{${p}}</span>`).join('');
+
+  // Goals
+  document.getElementById('campGoals').innerHTML=events.length
+    ?events.map((e,i)=>`<div class="goal-row"><div class="goal-name">Event ${i+1}: &nbsp;<strong>${e.name}</strong></div><div style="color:var(--green);font-weight:700">₹${e.payout}</div></div>`).join('')
+    :'<div style="color:var(--muted);font-size:13px">No events set</div>';
+
+  // Stats
+  if(SESSION){
+    const [{data:cl},{data:cv}]=await Promise.all([
+      sb.from('clicks').select('id').eq('publisher_id',SESSION.user.id).eq('campaign_id',cid),
+      sb.from('conversions').select('*').eq('publisher_id',SESSION.user.id).eq('campaign_id',cid)
+    ]);
+    set('cs-clicks',(cl||[]).length);
+    set('cs-convs',(cv||[]).length);
+    set('cs-leads',(cv||[]).filter(c=>c.status==='approved').length||'N/A');
+    const cvr=(cl||[]).length>0?((cv||[]).length/(cl||[]).length*100).toFixed(2)+'%':'0.00%';
+    set('cs-cvr',cvr);
+  }
+
+  // Offer postbacks
+  await loadOfferPBs(cid);
+
+  // Show page
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-offerDetail').classList.add('on');
+  set('pageTitle',currentOffer.name);
+}
+
+function toggleMacro(el,param){
+  const pubId=PUBLISHER?.short_id||'1';
+  const baseLink=`${BASE}/click/?offer_id=${currentOffer?.short_id}&pub=${pubId}`;
+  const idx=activeMacros.indexOf(param);
+  if(idx>-1){activeMacros.splice(idx,1);el.classList.remove('active');}
+  else{activeMacros.push(param);el.classList.add('active');}
+  let link=baseLink;
+  if(activeMacros.length) link+='&'+activeMacros.map(m=>`${m.replace(/[{}]/g,'')}={${m.replace(/[{}]/g,'')}}`).join('&');
+  set('generatedLink',link);
+}
+
+async function loadOfferPBs(cid){
+  const {data}=await sb.from('postbacks').select('*').eq('publisher_id',SESSION.user.id).eq('campaign_id',cid);
+  const container=document.getElementById('offerPBList');
+  if(!data?.length){container.innerHTML='<div style="color:var(--muted);font-size:13px">No postbacks for this offer yet. Add one above.</div>';return;}
+  container.innerHTML=data.map(p=>`
+    <div class="pb-item">
+      <div class="pb-item-head">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-weight:600">${p.event_name}</span>
+          <span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:10px;font-size:11px">${p.status}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deletePB('${p.id}','offer')">Delete</button>
+      </div>
+      <div class="link-box"><span class="link-text">${p.postback_url}</span><button class="copy-btn" onclick="copy('${p.postback_url}')">Copy</button></div>
+    </div>`).join('');
+}
+
+function openPBModalForOffer(){
+  if(!currentOffer)return;
+  // Pre-select campaign
+  const sel=document.getElementById('pbCamp');
+  sel.value=currentOffer.id;
+  loadPBEvents();
+  document.getElementById('pbModal').classList.add('show');
+}
+
+function loadPBEvents(){
+  const cid=document.getElementById('pbCamp').value;
+  const camp=CAMPAIGNS.find(c=>c.id===cid);
+  const events=camp?.events||[];
+  const evSel=document.getElementById('pbEvent');
+  evSel.innerHTML='<option value="">Select event</option>'+events.map(e=>`<option value="${e.name}">${e.name} — ₹${e.payout}</option>`).join('');
+}
+
+async function loadPostbacks(){
+  const {data}=await sb.from('postbacks').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id).order('created_at',{ascending:false});
+  const container=document.getElementById('pbList');
+  if(!data?.length){container.innerHTML='<div style="color:var(--muted);padding:10px">No postbacks added yet.</div>';return;}
+  container.innerHTML=data.map(p=>`
+    <div class="pb-item">
+      <div class="pb-item-head">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <strong>${p.campaigns?.name||'—'}</strong>
+          <span style="background:var(--blue-light);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:11px">${p.event_name}</span>
+          <span style="background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:10px;font-size:11px">${p.status}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deletePB('${p.id}','list')">Delete</button>
+      </div>
+      <div class="link-box"><span class="link-text">${p.postback_url}</span><button class="copy-btn" onclick="copy('${p.postback_url}')">Copy</button></div>
+    </div>`).join('');
+}
+
+function openPBModal(){document.getElementById('pbModal').classList.add('show');}
+function closePBModal(){document.getElementById('pbModal').classList.remove('show');}
+function ins(p){const ta=document.getElementById('pbUrl');const pos=ta.selectionStart||ta.value.length;ta.value=ta.value.slice(0,pos)+p+ta.value.slice(pos);ta.focus();}
+
+async function savePB(){
+  const cid=document.getElementById('pbCamp').value;
+  const evt=document.getElementById('pbEvent').value;
+  const url=v('pbUrl');
+  if(!cid||!evt||!url){toast('Sab fields bharo','err');return;}
+  const {error}=await sb.from('postbacks').insert({publisher_id:SESSION.user.id,campaign_id:cid,event_name:evt,postback_url:url});
+  if(error){toast('Error: '+error.message,'err');return;}
+  document.getElementById('pbUrl').value='';
+  closePBModal();
+  toast('Postback save ho gaya!','ok');
+  if(currentOffer&&cid===currentOffer.id)loadOfferPBs(cid);
+  loadPostbacks();
+}
+
+async function deletePB(id,from){
+  if(!confirm('Delete karna hai?'))return;
+  await sb.from('postbacks').delete().eq('id',id);
+  toast('Deleted','ok');
+  if(from==='offer'&&currentOffer)loadOfferPBs(currentOffer.id);
+  else loadPostbacks();
+}
+
+async function doWithdraw(){
+  const amount=parseFloat(v('wdAmount')),upi=v('wdUpi')||PUBLISHER?.upi_id;
+  if(!amount||amount<200){toast('Minimum ₹200','err');return;}
+  if(!upi){toast('UPI ID bharo','err');return;}
+  if(amount>(PUBLISHER?.balance||0)){toast('Balance nahi hai itna','err');return;}
+  await sb.from('withdrawals').insert({publisher_id:SESSION.user.id,amount,upi_id:upi});
+  await sb.from('publishers').update({balance:(PUBLISHER.balance-amount)}).eq('id',SESSION.user.id);
+  await loadPublisher();updateBalance();
+  document.getElementById('wdAmount').value='';
+  toast('Withdrawal request bhej di!','ok');
+}
+
+async function loadWithdrawHistory(){
+  const {data}=await sb.from('withdrawals').select('*').eq('publisher_id',SESSION.user.id).order('requested_at',{ascending:false});
+  const tb=document.getElementById('wdHistory');
+  if(!data?.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">No withdrawals yet</td></tr>';return;}
+  tb.innerHTML=data.map(w=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:12px 16px;font-size:13px">${fmtDate(w.requested_at)}</td>
+    <td style="padding:12px 16px;font-weight:700;color:var(--green)">₹${Number(w.amount).toFixed(2)}</td>
+    <td style="padding:12px 16px;font-size:12px;font-family:var(--mono)">${w.upi_id}</td>
+    <td style="padding:12px 16px"><span style="background:${w.status==='paid'?'var(--green-light)':w.status==='rejected'?'var(--red-light)':'var(--yellow-light)'};color:${w.status==='paid'?'var(--green)':w.status==='rejected'?'var(--red)':'var(--yellow)'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${w.status}</span></td>
+  </tr>`).join('');
+}
+
+async function saveUpi(){
+  const upi=v('upiVal');if(!upi){toast('UPI ID daalo','err');return;}
+  await sb.from('publishers').update({upi_id:upi}).eq('id',SESSION.user.id);
+  await loadPublisher();toast('UPI save ho gaya!','ok');
+}
+
+async function loadPerf(){
+  const from=v('perfFrom'),to=v('perfTo');
+  let q=sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
+  if(from)q=q.gte('created_at',from);
+  if(to)q=q.lte('created_at',to+'T23:59:59');
+  const {data}=await q.order('created_at',{ascending:false});
+  const container=document.getElementById('perfContent');
+  if(!data?.length){container.innerHTML='<div style="color:var(--muted)">No data found</div>';return;}
+  const groups={};
+  for(const r of data){
+    const key=fmtDate(r.created_at)+'|'+(r.campaigns?.name||'—');
+    if(!groups[key])groups[key]={date:fmtDate(r.created_at),camp:r.campaigns?.name||'—',convs:0,earn:0};
+    groups[key].convs++;groups[key].earn+=Number(r.payout);
+  }
+  container.innerHTML=`<table style="width:100%;border-collapse:collapse">
+    <thead><tr style="background:var(--bg)">
+      <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase">Date</th>
+      <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase">Campaign</th>
+      <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase">Conversions</th>
+      <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase">Payout</th>
+    </tr></thead>
+    <tbody>${Object.values(groups).map(g=>`<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:10px 12px;font-size:13px">${g.date}</td>
+      <td style="padding:10px 12px;font-size:13px">${g.camp}</td>
+      <td style="padding:10px 12px;font-size:13px">${g.convs}</td>
+      <td style="padding:10px 12px;font-weight:700;color:var(--green)">₹${g.earn.toFixed(2)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+async function loadConsole(){
+  const {data}=await sb.from('postback_logs').select('*').eq('publisher_id',SESSION.user.id).order('fired_at',{ascending:false}).limit(50);
+  const box=document.getElementById('consoleBox');
+  if(!data?.length){box.innerHTML='<div class="log-entry"><span class="log-time">--:--</span><span style="color:#475569">No logs yet</span></div>';return;}
+  box.innerHTML=data.map(l=>`<div class="log-entry">
+    <span class="log-time">${fmtDate(l.fired_at)}</span>
+    <span class="${l.status==='success'?'log-ok':'log-err'}">[${l.response_code||'ERR'}]</span>
+    <span class="log-url">${l.fired_url||'—'}</span>
+  </div>`).join('');
+}
+
+async function loadProfile(){
+  document.getElementById('profName').value=PUBLISHER?.name||'';
+  document.getElementById('profPhone').value=PUBLISHER?.phone||'';
+  document.getElementById('upiVal').value=PUBLISHER?.upi_id||'';
+}
+async function saveProfile(){
+  const name=v('profName'),phone=v('profPhone');
+  if(!name){toast('Naam bharo','err');return;}
+  await sb.from('publishers').update({name,phone:phone||null}).eq('id',SESSION.user.id);
+  await loadPublisher();
+  set('sideName',name);
+  document.getElementById('sideAvatar').textContent=name[0].toUpperCase();
+  toast('Profile update ho gaya!','ok');
+}
+
+function go(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(el)el.classList.add('on');
+  set('pageTitle',el?el.textContent.trim().replace(/^.\s*/,''):id);
+  closeSidebar();
+  if(id==='dashboard')loadDashboard();
+  if(id==='postback')loadPostbacks();
+  if(id==='withhistory')loadWithdrawHistory();
+  if(id==='pbconsole')loadConsole();
+  if(id==='profile')loadProfile();
+  if(id==='withdraw')updateBalance();
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
+function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
+function copy(txt){if(!txt||txt==='—'){toast('Koi link nahi','err');return;}navigator.clipboard.writeText(txt).then(()=>toast('Copy ho gaya!','ok')).catch(()=>toast('Copy failed','err'));}
+function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'✓':'✗'}</span> ${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+init();
+</script>
+</body>
+</html>
