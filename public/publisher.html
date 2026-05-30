@@ -737,5 +737,65 @@ async function loadPerf(){
   for(const r of data){
     const key=fmtDate(r.created_at)+'|'+(r.campaigns?.name||'—');
     if(!groups[key])groups[key]={date:fmtDate(r.created_at),camp:r.campaigns?.name||'—',convs:0,earn:0};
+    groups[key].convs++;groups[key].earn+=Number(r.payout);
+  }
+  tb.innerHTML=Object.values(groups).map(g=>`<tr>
+    <td>${g.date}</td><td>${g.camp}</td><td>—</td><td>${g.convs}</td>
+    <td style="color:var(--green);font-weight:700">Rs.${g.earn.toFixed(2)}</td>
+  </tr>`).join('');
+}
+
+async function loadConsole(){
+  const {data}=await sb.from('postback_logs').select('*').eq('publisher_id',SESSION.user.id).order('fired_at',{ascending:false}).limit(50);
+  const box=document.getElementById('consoleBox');
+  if(!data?.length){box.innerHTML='<div class="log-entry"><span class="log-time">--:--</span><span style="color:#475569">No logs yet</span></div>';return;}
+  box.innerHTML=data.map(l=>`<div class="log-entry">
+    <span class="log-time">${fmtTime(l.fired_at)}</span>
+    <span class="${l.status==='success'?'log-ok':'log-err'}">[${l.response_code||'ERR'}]</span>
+    <span class="log-url">${l.fired_url||'—'}</span>
+  </div>`).join('');
+}
+
+async function loadProfile(){
+  document.getElementById('profName').value=PUBLISHER?.name||'';
+  document.getElementById('profPhone').value=PUBLISHER?.phone||'';
+  document.getElementById('upiVal').value=PUBLISHER?.upi_id||'';
+}
+async function saveProfile(){
+  const name=v('profName'),phone=v('profPhone');
+  if(!name){toast('Naam bharo','err');return;}
+  await sb.from('publishers').update({name,phone:phone||null}).eq('id',SESSION.user.id);
+  await loadPublisher();set('sideName',name);document.getElementById('sideAvatar').textContent=name[0].toUpperCase();
+  toast('Profile update ho gaya!','ok');
+}
+
+function go(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  el.classList.add('on');
+  set('pageTitle',el.textContent.trim());
+  closeSidebar();
+  if(id==='dashboard')loadDashboard();
+  if(id==='mylinks')loadLinks();
+  if(id==='postback')loadPostbacks();
+  if(id==='withhistory')loadWithdrawHistory();
+  if(id==='pbconsole')loadConsole();
+  if(id==='profile')loadProfile();
+  if(id==='withdraw')updateBalance();
+}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
+function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
+function copy(txt){navigator.clipboard.writeText(txt).then(()=>toast('Copy ho gaya!','ok')).catch(()=>toast('Copy failed','err'));}
+function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'✓':'✗'}</span> ${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+init();
+</script>
+</body>
+</html>
     
         
