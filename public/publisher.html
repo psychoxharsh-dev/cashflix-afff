@@ -355,4 +355,387 @@ tbody tr:hover{background:var(--blue-light);}
         <div style="padding:20px">
           <div class="form-group"><label>UPI ID</label><input id="upiVal" type="text" placeholder="yourname@upi"></div>
           <button class="btn btn-blue" onclick="saveUpi()">Save</button>
+                </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE -->
+    <div class="page" id="pg-performance">
+      <div class="card">
+        <div class="card-header"><h3>Performance Report</h3>
+          <div style="display:flex;gap:8px">
+            <input type="date" id="perfFrom" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none">
+            <input type="date" id="perfTo" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none">
+            <button class="btn btn-blue btn-sm" onclick="loadPerf()">Apply</button>
+          </div>
+        </div>
+        <table><thead><tr><th>Date</th><th>Campaign</th><th>Clicks</th><th>Conversions</th><th>Earned</th></tr></thead>
+        <tbody id="perfTable"><tr class="empty-row"><td colspan="5">Select date range and click Apply</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- PB CONSOLE -->
+    <div class="page" id="pg-pbconsole">
+      <div class="card">
+        <div class="card-header"><h3>Postback Console</h3><button class="btn btn-ghost btn-sm" onclick="loadConsole()">Refresh</button></div>
+        <div style="padding:16px">
+          <div class="console-box" id="consoleBox">
+            <div class="log-entry"><span class="log-time">--:--:--</span><span style="color:#475569">No logs yet...</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="pg-profile">
+      <div class="card" style="max-width:500px">
+        <div class="card-header"><h3>Profile</h3></div>
+        <div style="padding:20px">
+          <div class="form-group"><label>Full Name</label><input id="profName" type="text"></div>
+          <div class="form-group"><label>Phone</label><input id="profPhone" type="tel"></div>
+          <button class="btn btn-blue" onclick="saveProfile()">Update Profile</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- POSTBACK MODAL -->
+<div class="modal-bg" id="pbModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add Postback</h3><button class="x-btn" onclick="closePBModal()">x</button></div>
+    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select campaign...</option></select></div>
+    <div class="form-group">
+      <label>Event</label>
+      <select id="pbEvent"><option value="">Select event...</option></select>
+    </div>
+    <div class="form-group">
+      <label>Your Postback URL</label>
+      <textarea id="pbUrl" placeholder="https://yourtracker.com/postback?click={aff_click_id}&payout={payout}"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:8px">Click karke parameter insert karo:</div>
+      <div class="params-wrap">
+        <span class="param-chip" onclick="ins('{aff_click_id}')">{aff_click_id}</span>
+        <span class="param-chip" onclick="ins('{payout}')">{payout}</span>
+        <span class="param-chip" onclick="ins('{event_name}')">{event_name}</span>
+        <span class="param-chip" onclick="ins('{offer_id}')">{offer_id}</span>
+        <span class="param-chip" onclick="ins('{affsub}')">{affsub}</span>
+        <span class="param-chip" onclick="ins('{affsub2}')">{affsub2}</span>
+        <span class="param-chip" onclick="ins('{affsub3}')">{affsub3}</span>
+        <span class="param-chip" onclick="ins('{affsub4}')">{affsub4}</span>
+        <span class="param-chip" onclick="ins('{affsub5}')">{affsub5}</span>
+        <span class="param-chip" onclick="ins('{device}')">{device}</span>
+        <span class="param-chip" onclick="ins('{ip}')">{ip}</span>
+        <span class="param-chip" onclick="ins('{browser}')">{browser}</span>
+        <span class="param-chip" onclick="ins('{click_time}')">{click_time}</span>
+        <span class="param-chip" onclick="ins('{sub_aff_id}')">{sub_aff_id}</span>
+        <span class="param-chip" onclick="ins('{gaid}')">{gaid}</span>
+        <span class="param-chip" onclick="ins('{idfa}')">{idfa}</span>
+        <span class="param-chip" onclick="ins('{os}')">{os}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-blue" style="flex:1" onclick="savePB()">Save Postback</button>
+      <button class="btn btn-ghost" onclick="closePBModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- GET LINK MODAL -->
+<div class="modal-bg" id="linkModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="linkModalTitle">Get Tracking Link</h3><button class="x-btn" onclick="document.getElementById('linkModal').classList.remove('show')">x</button></div>
+    <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:10px;text-transform:uppercase">Campaign Goals & Payouts</div>
+      <div id="campPayouts" style="font-size:13px;line-height:2;color:var(--text)"></div>
+    </div>
+    <div class="form-group"><label>Sub ID (optional)</label><input id="linkSubId" type="text" placeholder="e.g. facebook_ad_1"></div>
+    <div class="form-group">
+      <label>Your Tracking Link</label>
+      <div class="url-box"><span class="url-text" id="linkPreview">Generate karne ke liye neeche click karo</span><button class="copy-btn" onclick="copyAffLink()">Copy</button></div>
+    </div>
+    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">INRFlash Postback URL (apne advertiser ko do)</div>
+      <div class="url-box" style="background:white">
+        <span class="url-text" id="advertiserPBUrl" style="color:var(--green)">—</span>
+        <button class="copy-btn" style="background:var(--green)" onclick="copy(document.getElementById('advertiserPBUrl').textContent)">Copy</button>
+      </div>
+    </div>
+    <button class="btn btn-blue" style="width:100%" onclick="generateLink()">Generate Tracking Link</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://brdiufojignimvdamkjr.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZGl1Zm9qaWduaW12ZGFta2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzcxMzAsImV4cCI6MjA5NTU1MzEzMH0.RRPoR4BQXa8g54OZRRTU7RatkIzH5THWzJKEXFY7cZA';
+const BASE_URL = window.location.origin;
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+let SESSION=null,PUBLISHER=null,CAMPAIGNS=[],linkCampId=null,linkCampShortId=null;
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){SESSION=session;await loadPublisher();showApp();}
+  sb.auth.onAuthStateChange(async(_,s)=>{
+    if(s){SESSION=s;await loadPublisher();showApp();}
+    else{SESSION=null;PUBLISHER=null;document.getElementById('authScreen').style.display='flex';}
+  });
+}
+
+function showApp(){
+  document.getElementById('authScreen').style.display='none';
+  set('sideName',PUBLISHER?.name||'Publisher');
+  set('sideEmail',SESSION?.user?.email||'');
+  document.getElementById('sideAvatar').textContent=(PUBLISHER?.name||'P')[0].toUpperCase();
+  // Global postback URL
+  const pid=PUBLISHER?.short_id||'YOUR_PUB_ID';
+  set('globalPBUrl',`${BASE_URL}/postback?click_id={aff_click_id}&event={event_name}&payout={payout}`);
+  updateBalance();loadDashboard();loadCampaigns();
+}
+
+function switchTab(t){
+  document.getElementById('loginForm').style.display=t==='login'?'block':'none';
+  document.getElementById('signupForm').style.display=t==='signup'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('on',t==='login');
+  document.getElementById('tabSignup').classList.toggle('on',t==='signup');
+  msg('','');
+}
+function msg(txt,type){const el=document.getElementById('authMsg');el.textContent=txt;el.className='auth-msg'+(type?' '+type:'');}
+
+async function doLogin(){
+  const e=v('loginEmail'),p=v('loginPass');
+  if(!e||!p){msg('Email aur password bharo','err');return;}
+  msg('Login ho raha hai...');
+  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){msg(error.message,'err');return;}
+  msg('');
+}
+
+async function doSignup(){
+  const btn=document.getElementById('signupBtn');
+  const name=v('signupName'),email=v('signupEmail'),phone=v('signupPhone'),pass=v('signupPass');
+  if(!name){msg('Naam bharo','err');return;}
+  if(!email){msg('Email bharo','err');return;}
+  if(!pass||pass.length<6){msg('Password min 6 characters','err');return;}
+  btn.textContent='Creating...';btn.disabled=true;
+  msg('Account ban raha hai...');
+  try{
+    const {data,error}=await sb.auth.signUp({email,password:pass});
+    if(error){msg(error.message,'err');btn.textContent='Create Account';btn.disabled=false;return;}
+    if(data?.user){
+      await sb.from('publishers').insert({id:data.user.id,email,name,phone:phone||null,status:'active',balance:0,total_earned:0});
+      msg('Account ban gaya! Ab login karo.','ok');
+      setTimeout(()=>{switchTab('login');document.getElementById('loginEmail').value=email;msg('Login karo','ok');},1500);
+    }
+  }catch(e){msg('Error: '+e.message,'err');}
+  btn.textContent='Create Account';btn.disabled=false;
+}
+
+async function doLogout(){await sb.auth.signOut();}
+
+async function loadPublisher(){
+  if(!SESSION)return;
+  const {data}=await sb.from('publishers').select('*').eq('id',SESSION.user.id).single();
+  PUBLISHER=data;
+}
+function updateBalance(){
+  const b=(PUBLISHER?.balance||0).toFixed(2);
+  set('topBalance',b);set('wdBalance',b);
+}
+
+async function loadDashboard(){
+  if(!SESSION)return;
+  const pid=SESSION.user.id;
+  const [{data:cl},{data:cv}]=await Promise.all([
+    sb.from('clicks').select('id').eq('publisher_id',pid),
+    sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',pid).order('created_at',{ascending:false})
+  ]);
+  const approved=(cv||[]).filter(c=>c.status==='approved');
+  const pending=(cv||[]).filter(c=>c.status==='pending');
+  set('st-clicks',(cl||[]).length);
+  set('st-convs',approved.length);
+  set('st-earned','Rs.'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
+  set('st-pending',pending.length);
+  const tb=document.getElementById('recentConvs');
+  if(!(cv||[]).length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No conversions yet</td></tr>';return;}
+  tb.innerHTML=(cv||[]).slice(0,10).map(r=>`<tr>
+    <td style="font-size:12px;color:var(--muted)">${fmtTime(r.created_at)}</td>
+    <td>${r.campaigns?.name||'—'}</td>
+    <td><span class="badge blue">${r.event_name}</span></td>
+    <td style="color:var(--green);font-weight:600">Rs.${Number(r.payout).toFixed(2)}</td>
+    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
+  </tr>`).join('');
+}
+
+async function loadCampaigns(){
+  const {data}=await sb.from('campaigns').select('*').eq('status','active');
+  CAMPAIGNS=data||[];
+  const sel=document.getElementById('pbCamp');
+  sel.innerHTML='<option value="">Select campaign...</option>'+CAMPAIGNS.map(c=>`<option value="${c.id}" data-shortid="${c.short_id}" data-events='${JSON.stringify(c.events||[])}'>${c.name}</option>`).join('');
+  renderCamps(CAMPAIGNS);
+}
+
+function renderCamps(list){
+  const tb=document.getElementById('campTable');
+  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="4">No campaigns available</td></tr>';return;}
+  tb.innerHTML=list.map(c=>{
+    const events=c.events||[];
+    const evStr=events.map(e=>`<span style="margin-right:10px"><strong style="color:var(--green)">Rs.${e.payout}</strong> ${e.name}</span>`).join('');
+    return `<tr>
+      <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.description||''}</span></td>
+      <td style="font-size:13px">${evStr||'—'}</td>
+      <td><span class="badge green">Active</span></td>
+      <td><button class="btn btn-blue btn-sm" onclick="openLinkModal('${c.id}','${c.name}','${c.short_id}',${JSON.stringify(c.events||[]).replace(/'/g,"&#39;")})">Get Link</button></td>
+    </tr>`;
+  }).join('');
+}
+function filterCamps(q){renderCamps(CAMPAIGNS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())));}
+
+function openLinkModal(cid,name,shortId,events){
+  linkCampId=cid;linkCampShortId=shortId;
+  document.getElementById('linkModalTitle').textContent=name;
+  document.getElementById('linkSubId').value='';
+  document.getElementById('linkPreview').textContent='Generate karne ke liye neeche click karo';
+  const evArr=typeof events==='string'?JSON.parse(events):events;
+  let evHtml=evArr.map(e=>`<div>Event: <strong>${e.name}</strong> — Payout: <strong style="color:var(--green)">Rs.${e.payout}</strong></div>`).join('');
+  document.getElementById('campPayouts').innerHTML=evHtml||'—';
+  // Advertiser postback URL
+  const pid=PUBLISHER?.short_id||'X';
+  document.getElementById('advertiserPBUrl').textContent=`${BASE_URL}/postback?click_id={aff_click_id}&event={event_name}&payout={payout}`;
+  document.getElementById('linkModal').classList.add('show');
+}
+
+async function generateLink(){
+  if(!linkCampId){toast('Campaign select karo','err');return;}
+  const pub=PUBLISHER;
+  if(!pub?.short_id){toast('Publisher ID nahi mila','err');return;}
+  const url=`${BASE_URL}/click/?offer_id=${linkCampShortId}&pub=${pub.short_id}`;
+  document.getElementById('linkPreview').textContent=url;
+  // Save link if not exists
+  let {data:link}=await sb.from('affiliate_links').select('*').eq('publisher_id',pub.id).eq('campaign_id',linkCampId).single();
+  if(!link){
+    await sb.from('affiliate_links').insert({
+      publisher_id:pub.id,campaign_id:linkCampId,
+      short_code:`${linkCampShortId}-${pub.short_id}`,sub_id:null
+    });
+  }
+  toast('Link generate ho gaya!','ok');
+}
+function copyAffLink(){
+  const t=document.getElementById('linkPreview').textContent;
+  if(t.includes('Generate')){{toast('Pehle link generate karo','err');return;}}
+  copy(t);
+}
+
+// Campaign select hone par events load karo
+document.addEventListener('change',function(e){
+  if(e.target.id==='pbCamp'){
+    const opt=e.target.selectedOptions[0];
+    const events=opt?.dataset?.events?JSON.parse(opt.dataset.events):[];
+    const evSel=document.getElementById('pbEvent');
+    evSel.innerHTML='<option value="">Select event...</option>'+events.map(ev=>`<option value="${ev.name}">${ev.name} — Rs.${ev.payout}</option>`).join('');
+  }
+});
+
+async function loadLinks(){
+  const {data}=await sb.from('affiliate_links').select('*,campaigns(name,short_id)').eq('publisher_id',SESSION.user.id).order('created_at',{ascending:false});
+  const tb=document.getElementById('linksTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No links yet</td></tr>';return;}
+  tb.innerHTML=data.map(l=>{
+    const trackUrl=`${BASE_URL}/click/?offer_id=${l.campaigns?.short_id}&pub=${PUBLISHER?.short_id}`;
+    return `<tr>
+      <td>${l.campaigns?.name||'—'}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${l.sub_id||'—'}</td>
+      <td id="lc-${l.short_code}">...</td>
+      <td><div class="url-box"><span class="url-text">${trackUrl}</span><button class="copy-btn" onclick="copy('${trackUrl}')">Copy</button></div></td>
+      <td style="font-size:12px;color:var(--muted)">${fmtDate(l.created_at)}</td>
+    </tr>`;
+  }).join('');
+  for(const l of data){
+    const {data:cl}=await sb.from('clicks').select('id').eq('link_id',l.id);
+    const el=document.getElementById(`lc-${l.short_code}`);
+    if(el)el.textContent=(cl||[]).length;
+  }
+}
+
+async function loadPostbacks(){
+  const {data}=await sb.from('postbacks').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
+  const container=document.getElementById('pbList');
+  if(!data?.length){container.innerHTML='<div style="color:var(--muted);padding:10px">No postbacks added yet.</div>';return;}
+  container.innerHTML=data.map(p=>`
+    <div class="pb-item">
+      <div class="pb-item-head">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <strong>${p.campaigns?.name||'—'}</strong>
+          <span class="badge blue">${p.event_name}</span>
+          <span class="badge green">${p.status}</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deletePB('${p.id}')">Delete</button>
+      </div>
+      <div class="url-box"><span class="url-text">${p.postback_url}</span><button class="copy-btn" onclick="copy('${p.postback_url}')">Copy</button></div>
+    </div>`).join('');
+}
+function openPBModal(){document.getElementById('pbModal').classList.add('show');}
+function closePBModal(){document.getElementById('pbModal').classList.remove('show');}
+function ins(p){const ta=document.getElementById('pbUrl');const pos=ta.selectionStart||ta.value.length;ta.value=ta.value.slice(0,pos)+p+ta.value.slice(pos);ta.focus();}
+async function savePB(){
+  const cid=v('pbCamp'),evt=v('pbEvent'),url=v('pbUrl');
+  if(!cid||!evt||!url){toast('Sab fields bharo','err');return;}
+  const {error}=await sb.from('postbacks').insert({publisher_id:SESSION.user.id,campaign_id:cid,event_name:evt,postback_url:url});
+  if(error){toast('Error: '+error.message,'err');return;}
+  document.getElementById('pbUrl').value='';
+  closePBModal();toast('Postback save ho gaya!','ok');loadPostbacks();
+}
+async function deletePB(id){
+  if(!confirm('Delete karna hai?'))return;
+  await sb.from('postbacks').delete().eq('id',id);
+  toast('Delete ho gaya','ok');loadPostbacks();
+}
+
+async function doWithdraw(){
+  const amount=parseFloat(v('wdAmount')),upi=v('wdUpi')||PUBLISHER?.upi_id;
+  if(!amount||amount<200){toast('Minimum Rs.200 chahiye','err');return;}
+  if(!upi){toast('UPI ID bharo','err');return;}
+  if(amount>(PUBLISHER?.balance||0)){toast('Balance nahi hai itna','err');return;}
+  await sb.from('withdrawals').insert({publisher_id:SESSION.user.id,amount,upi_id:upi});
+  await sb.from('publishers').update({balance:(PUBLISHER.balance-amount)}).eq('id',SESSION.user.id);
+  await loadPublisher();updateBalance();
+  document.getElementById('wdAmount').value='';
+  toast('Withdrawal request bhej di!','ok');
+}
+
+async function loadWithdrawHistory(){
+  const {data}=await sb.from('withdrawals').select('*').eq('publisher_id',SESSION.user.id).order('requested_at',{ascending:false});
+  const tb=document.getElementById('wdHistory');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No withdrawals yet</td></tr>';return;}
+  tb.innerHTML=data.map(w=>`<tr>
+    <td>${fmtDate(w.requested_at)}</td>
+    <td style="font-weight:700;color:var(--green)">Rs.${Number(w.amount).toFixed(2)}</td>
+    <td style="font-family:var(--mono);font-size:12px">${w.upi_id}</td>
+    <td><span class="badge ${w.status==='paid'?'green':w.status==='rejected'?'red':'yellow'}">${w.status}</span></td>
+    <td style="color:var(--muted);font-size:12px">${w.note||'—'}</td>
+  </tr>`).join('');
+}
+
+async function saveUpi(){
+  const upi=v('upiVal');if(!upi){toast('Enter Upi Id','err');return;}
+  await sb.from('publishers').update({upi_id:upi}).eq('id',SESSION.user.id);
+  await loadPublisher();toast('UPI save ho gaya!','ok');
+}
+
+async function loadPerf(){
+  const from=v('perfFrom'),to=v('perfTo');
+  let q=sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
+  if(from)q=q.gte('created_at',from);
+  if(to)q=q.lte('created_at',to+'T23:59:59');
+  const {data}=await q.order('created_at',{ascending:false});
+  const tb=document.getElementById('perfTable');
+  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No data</td></tr>';return;}
+  const groups={};
+  for(const r of data){
+    const key=fmtDate(r.created_at)+'|'+(r.campaigns?.name||'—');
+    if(!groups[key])groups[key]={date:fmtDate(r.created_at),camp:r.campaigns?.name||'—',convs:0,earn:0};
+    
         
