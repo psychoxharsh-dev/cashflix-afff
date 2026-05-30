@@ -7,152 +7,198 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
-  --bg:#F0F4FF;
-  --white:#FFFFFF;
-  --blue:#2563EB;
-  --blue2:#1D4ED8;
-  --blue-light:#EFF6FF;
-  --blue-mid:#DBEAFE;
-  --border:#BFDBFE;
-  --text:#1E3A5F;
-  --muted:#64748B;
-  --green:#059669;
-  --green-light:#ECFDF5;
-  --red:#DC2626;
-  --red-light:#FEF2F2;
-  --yellow:#D97706;
-  --yellow-light:#FFFBEB;
-  --font:'Inter',sans-serif;
-  --mono:'DM Mono',monospace;
-}
+:root{--bg:#F5F6FA;--white:#fff;--blue:#2563EB;--blue2:#1D4ED8;--blue-light:#EFF6FF;--blue-mid:#DBEAFE;--border:#E2E8F0;--text:#1E293B;--muted:#64748B;--green:#059669;--green-light:#ECFDF5;--red:#DC2626;--red-light:#FEF2F2;--yellow:#D97706;--yellow-light:#FFFBEB;--orange:#EA580C;--orange-light:#FFF7ED;--font:'Inter',sans-serif;--mono:'DM Mono',monospace;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
 
 /* AUTH */
-#authScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1D4ED8,#2563EB,#3B82F6);z-index:1000;display:flex;align-items:center;justify-content:center;}
-.auth-box{background:var(--white);border-radius:24px;padding:40px;width:94%;max-width:420px;box-shadow:0 25px 60px rgba(0,0,0,0.2);}
-.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-.auth-logo-icon{width:42px;height:42px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:800;}
+#authScreen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.auth-box{background:var(--white);border-radius:16px;padding:40px;width:94%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,0.08);}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.auth-logo-icon{width:44px;height:44px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;}
 .auth-logo-text{font-size:22px;font-weight:800;color:var(--text);}
-.auth-logo-text span{color:var(--blue);}
-.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;margin-left:52px;}
-.tab-row{display:flex;background:var(--blue-light);border-radius:10px;padding:4px;margin-bottom:24px;}
+.auth-logo-text span{color:var(--orange);}
+.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;padding-left:54px;}
+.tab-row{display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:20px;border:1px solid var(--border);}
 .tab-btn{flex:1;padding:9px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:14px;font-weight:500;border-radius:7px;cursor:pointer;transition:.2s;}
-.tab-btn.on{background:var(--blue);color:white;box-shadow:0 2px 8px rgba(37,99,235,0.4);}
-.inp{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
-.inp:focus{border-color:var(--blue);background:white;}
-.inp::placeholder{color:var(--muted);}
-.btn-full{width:100%;padding:13px;background:var(--blue);border:none;border-radius:10px;color:white;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 4px 12px rgba(37,99,235,0.3);}
-.btn-full:hover{background:var(--blue2);}
-.auth-msg{font-size:12px;text-align:center;margin-top:12px;min-height:18px;}
+.tab-btn.on{background:var(--white);color:var(--orange);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+.inp{width:100%;padding:11px 14px 11px 40px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;position:relative;}
+.inp:focus{border-color:var(--orange);}
+.inp::placeholder{color:#94A3B8;}
+.inp-wrap{position:relative;margin-bottom:12px;}
+.inp-wrap .inp{margin-bottom:0;padding-left:40px;}
+.inp-wrap .inp-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94A3B8;font-size:15px;}
+.btn-full{width:100%;padding:13px;background:var(--orange);border:none;border-radius:10px;color:white;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-full:hover{background:#C2410C;}
+.auth-msg{font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
 .auth-msg.err{color:var(--red);}
 .auth-msg.ok{color:var(--green);}
+.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted);}
+.auth-switch span{color:var(--orange);cursor:pointer;font-weight:500;}
 
 /* SIDEBAR */
-.sidebar{width:240px;background:var(--blue);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s;box-shadow:4px 0 20px rgba(37,99,235,0.2);}
-.logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.15);}
-.logo-wrap{display:flex;align-items:center;gap:10px;}
-.logo-icon{width:36px;height:36px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:16px;font-weight:800;}
-.logo h2{font-size:18px;font-weight:800;color:white;}
-.logo h2 span{color:#93C5FD;}
-.logo p{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;margin-left:46px;}
-.nav-sec{padding:16px 20px 6px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:1.5px;text-transform:uppercase;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.7);transition:.15s;border-left:3px solid transparent;margin:1px 0;}
-.nav-item:hover{color:white;background:rgba(255,255,255,0.1);}
-.nav-item.on{color:white;background:rgba(255,255,255,0.15);border-left-color:white;font-weight:600;}
-.sidebar-user{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;gap:10px;margin-top:auto;}
-.user-avatar{width:34px;height:34px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:700;font-size:14px;flex-shrink:0;}
-.user-name{font-size:13px;font-weight:600;color:white;}
-.user-email{font-size:11px;color:rgba(255,255,255,0.6);}
-.logout-btn{margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:16px;}
-.logout-btn:hover{color:white;}
+.sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s;}
+.logo{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:800;flex-shrink:0;}
+.logo-text{font-size:16px;font-weight:800;color:var(--text);}
+.logo-text span{color:var(--orange);}
+.logo-sub{font-size:11px;color:var(--muted);}
+.nav-sec{padding:16px 16px 4px;font-size:10px;font-weight:600;color:#94A3B8;letter-spacing:1.5px;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--muted);transition:.15s;border-radius:8px;margin:1px 8px;}
+.nav-item:hover{color:var(--text);background:var(--bg);}
+.nav-item.on{color:var(--orange);background:var(--orange-light);font-weight:600;}
+.nav-icon{width:20px;text-align:center;font-size:15px;}
+.sidebar-bottom{padding:16px;border-top:1px solid var(--border);margin-top:auto;}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:10px;}
+.user-av{width:34px;height:34px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:600;color:var(--text);}
+.user-email{font-size:11px;color:var(--muted);}
+.logout-btn{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;}
+.logout-btn:hover{color:var(--red);}
 
-/* MAIN */
+/* TOPBAR */
 .main{margin-left:240px;flex:1;display:flex;flex-direction:column;}
-.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.topbar h1{font-size:18px;font-weight:700;color:var(--text);}
-.balance-pill{background:var(--blue);color:white;font-weight:700;font-size:15px;padding:7px 18px;border-radius:20px;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar h1{font-size:17px;font-weight:700;color:var(--text);}
+.balance-pill{background:var(--orange-light);color:var(--orange);font-weight:700;font-size:15px;padding:7px 16px;border-radius:20px;border:1px solid #FED7AA;}
 .hburg{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;}
-.content{padding:22px;flex:1;}
+
+/* CONTENT */
+.content{padding:20px;flex:1;}
 .page{display:none;}.page.on{display:block;}
 
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
-.stat-card.blue-card{background:var(--blue);border-color:var(--blue);}
+/* DASHBOARD STATS */
+.stats-row{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:16px;}
+.stat-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-icon-wrap.orange{background:var(--orange-light);}
+.stat-icon-wrap.green{background:var(--green-light);}
+.stat-icon-wrap.blue{background:var(--blue-light);}
 .stat-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.stat-card.blue-card .stat-lbl{color:rgba(255,255,255,0.7);}
-.stat-val{font-size:28px;font-weight:800;margin:4px 0 2px;color:var(--text);}
-.stat-card.blue-card .stat-val{color:white;}
+.stat-val{font-size:26px;font-weight:800;color:var(--text);margin:2px 0;}
 .stat-sub{font-size:11px;color:var(--muted);}
-.stat-card.blue-card .stat-sub{color:rgba(255,255,255,0.6);}
-.stat-icon{font-size:22px;margin-bottom:8px;}
 
-/* CARDS */
-.card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
-.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--white);}
-.card-header h3{font-size:15px;font-weight:700;color:var(--text);}
-table{width:100%;border-collapse:collapse;}
-thead th{padding:10px 20px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;background:var(--blue-light);border-bottom:1px solid var(--border);}
-tbody td{padding:14px 20px;font-size:13px;border-bottom:1px solid #F1F5F9;color:var(--text);}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover{background:var(--blue-light);}
-.empty-row td{text-align:center;color:var(--muted);padding:30px;}
+/* CHART CARD */
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;}
+.chart-card h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.date-range{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--muted);margin-bottom:12px;cursor:pointer;}
 
-/* BADGES */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
-.badge.green{background:var(--green-light);color:var(--green);}
-.badge.blue{background:var(--blue-mid);color:var(--blue);}
-.badge.yellow{background:var(--yellow-light);color:var(--yellow);}
-.badge.red{background:var(--red-light);color:var(--red);}
+/* EARNINGS CARD */
+.earnings-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;}
+.earnings-card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.earnings-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.earnings-row:last-child{border-bottom:none;font-weight:700;}
+.earnings-label{display:flex;align-items:center;gap:8px;font-size:13px;}
+.earnings-amount{font-size:14px;font-weight:600;color:var(--text);}
 
-/* BTNS */
-.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;}
-.btn-blue{background:var(--blue);color:white;box-shadow:0 2px 6px rgba(37,99,235,0.25);}
-.btn-blue:hover{background:var(--blue2);}
-.btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border);}
-.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
-.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #FECACA;}
-.btn-sm{padding:5px 12px;font-size:12px;}
+/* CAMPAIGNS */
+.camp-header{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:12px;}
+.camp-header h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.camp-header p{font-size:13px;color:var(--muted);margin-top:4px;}
+.search-box{width:100%;padding:10px 14px 10px 40px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14px;outline:none;margin-bottom:12px;color:var(--text);}
+.search-box:focus{border-color:var(--orange);}
+.search-wrap{position:relative;}
+.search-wrap::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;}
 
-/* FORMS */
-.form-group{margin-bottom:14px;}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.2s;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue);background:white;}
-.form-group textarea{resize:vertical;min-height:80px;}
+/* OFFER LIST */
+.offer-list{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.offer-header-row{display:grid;grid-template-columns:60px 1fr 100px 80px 80px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.offer-row{display:grid;grid-template-columns:60px 1fr 100px 80px 80px;padding:14px 16px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:.15s;}
+.offer-row:last-child{border-bottom:none;}
+.offer-row:hover{background:var(--bg);}
+.offer-id{font-size:13px;font-weight:700;color:var(--text);}
+.offer-name-wrap{display:flex;align-items:center;gap:10px;}
+.offer-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0;}
+.offer-name{font-size:13px;font-weight:600;color:var(--orange);}
+.offer-cat{display:inline-block;padding:3px 10px;background:var(--blue-light);color:var(--blue);border-radius:20px;font-size:11px;font-weight:600;}
+.offer-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:var(--green-light);color:var(--green);border-radius:20px;font-size:11px;font-weight:600;}
+.offer-payout{font-size:13px;font-weight:700;color:var(--text);}
 
-/* URL BOX */
-.url-box{display:flex;gap:8px;align-items:center;background:var(--blue-light);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
-.url-text{font-family:var(--mono);font-size:12px;color:var(--blue);flex:1;word-break:break-all;}
-.copy-btn{flex-shrink:0;background:var(--blue);color:white;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:none;font-weight:600;}
-.copy-btn:hover{background:var(--blue2);}
+/* OFFER DETAIL PAGE */
+.offer-detail-header{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;}
+.offer-detail-avatar{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white;flex-shrink:0;}
+.offer-detail-name{font-size:18px;font-weight:800;color:var(--text);}
+.offer-detail-meta{font-size:12px;color:var(--muted);margin-top:4px;}
+.payout-badge{display:inline-flex;align-items:center;gap:4px;background:var(--green-light);color:var(--green);padding:5px 12px;border-radius:20px;font-size:13px;font-weight:700;margin-left:10px;}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:var(--green-light);color:var(--green);border-radius:20px;font-size:12px;font-weight:600;margin-top:6px;}
 
-/* PARAMS */
-.params-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
-.param-chip{padding:4px 10px;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-family:var(--mono);color:var(--muted);cursor:pointer;transition:.15s;}
-.param-chip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+/* SECTION CARDS */
+.section-card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+.section-head{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border);}
+.section-head-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.section-head-icon.green{background:var(--green-light);}
+.section-head-icon.orange{background:var(--orange-light);}
+.section-head-icon.blue{background:var(--blue-light);}
+.section-head-icon.red{background:var(--red-light);}
+.section-title{font-size:14px;font-weight:700;color:var(--text);}
+.section-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.section-body{padding:16px 20px;}
 
-/* CONSOLE */
-.console-box{background:#0F172A;border-radius:10px;padding:14px;font-family:var(--mono);font-size:12px;min-height:180px;max-height:360px;overflow-y:auto;}
-.log-entry{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:10px;}
-.log-time{color:#475569;min-width:65px;}
-.log-ok{color:#34D399;}
-.log-err{color:#F87171;}
-.log-url{color:#60A5FA;word-break:break-all;}
+/* LINK BOX */
+.link-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.link-box{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;}
+.link-text{font-family:var(--mono);font-size:12px;color:var(--text);flex:1;word-break:break-all;}
+.copy-btn{flex-shrink:0;background:var(--orange);color:white;padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;border:none;font-weight:600;display:flex;align-items:center;gap:6px;}
+.copy-btn:hover{background:#C2410C;}
 
-/* PB ITEM */
-.pb-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+/* MACROS */
+.macro-section{margin-bottom:14px;}
+.macro-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;}
+.macro-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.macro-chip{padding:5px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--mono);color:var(--text);cursor:pointer;transition:.15s;}
+.macro-chip:hover{border-color:var(--orange);color:var(--orange);}
+.macro-chip.active{border-color:var(--orange);background:var(--orange-light);color:var(--orange);}
+
+/* GOALS */
+.goal-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.goal-row:last-child{border-bottom:none;}
+.goal-name{font-weight:500;color:var(--text);}
+.goal-num{font-weight:600;color:var(--muted);}
+
+/* STATS GRID */
+.camp-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.camp-stat{display:flex;flex-direction:column;align-items:center;background:var(--bg);border-radius:12px;padding:16px;border:1px solid var(--border);}
+.camp-stat-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:8px;font-size:20px;}
+.camp-stat-icon.blue{background:var(--blue);}
+.camp-stat-icon.green{background:var(--green);}
+.camp-stat-icon.orange{background:var(--orange);}
+.camp-stat-icon.gray{background:#64748B;}
+.camp-stat-val{font-size:20px;font-weight:800;color:var(--text);}
+.camp-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+
+/* POSTBACK */
+.pb-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;}
 .pb-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 
+/* WITHDRAW */
+.balance-big{background:linear-gradient(135deg,var(--orange),#F97316);border-radius:14px;padding:20px;margin-bottom:20px;color:white;}
+.balance-big-lbl{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:1px;}
+.balance-big-val{font-size:36px;font-weight:800;margin-top:4px;}
+
+/* FORM */
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:.2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange);}
+.form-group textarea{resize:vertical;min-height:80px;}
+
 /* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(30,58,95,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-bg.show{display:flex;}
-.modal{background:var(--white);border-radius:18px;padding:26px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.2);}
-.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
-.modal-head h3{font-size:18px;font-weight:700;color:var(--text);}
-.x-btn{background:var(--bg);border:none;color:var(--muted);width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;}
+.modal{background:var(--white);border-radius:18px;padding:26px;width:94%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-head h3{font-size:17px;font-weight:700;color:var(--text);}
+.x-btn{background:var(--bg);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer;}
+
+/* BTN */
+.btn{padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;}
+.btn-orange{background:var(--orange);color:white;}.btn-orange:hover{background:#C2410C;}
+.btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #FECACA;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-back{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-weight:500;padding:0;margin-bottom:14px;}
+.btn-back:hover{color:var(--text);}
 
 /* OVERLAY */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:90;}
@@ -165,16 +211,21 @@ tbody tr:hover{background:var(--blue-light);}
 .toast-item.err{border-left:4px solid var(--red);}
 @keyframes slideIn{from{opacity:0;transform:translateY(20px);}}
 
-/* SEARCH */
-.search-inp{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:200px;}
-.search-inp:focus{border-color:var(--blue);}
+/* CONSOLE */
+.console-box{background:#0F172A;border-radius:10px;padding:14px;font-family:var(--mono);font-size:12px;min-height:160px;max-height:320px;overflow-y:auto;}
+.log-entry{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:10px;}
+.log-time{color:#475569;min-width:65px;}
+.log-ok{color:#34D399;}
+.log-err{color:#F87171;}
+.log-url{color:#60A5FA;word-break:break-all;}
 
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
   .main{margin-left:0}
   .hburg{display:block}
-  .stats-grid{grid-template-columns:1fr 1fr}
+  .offer-header-row{display:none}
+  .offer-row{grid-template-columns:1fr auto}
 }
 </style>
 </head>
@@ -184,618 +235,44 @@ tbody tr:hover{background:var(--blue-light);}
 <div id="authScreen">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="auth-logo-icon">CF</div>
+      <div class="auth-logo-icon">⚡</div>
       <div class="auth-logo-text">Cash<span>Flix</span></div>
     </div>
-    <p class="auth-sub">Affiliate Publisher Platform</p>
+    <p class="auth-sub">Affiliate Panel</p>
     <div class="tab-row">
-      <button class="tab-btn on" id="tabLogin" onclick="switchTab('login')">Login</button>
-      <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+      <button class="tab-btn on" id="tabLogin" onclick="switchTab('login')">Sign in</button>
+      <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Create account</button>
     </div>
     <div id="loginForm">
-      <input class="inp" id="loginEmail" type="email" placeholder="Email address">
-      <input class="inp" id="loginPass" type="password" placeholder="Password">
-      <button class="btn-full" onclick="doLogin()">Sign In</button>
+      <div class="inp-wrap"><span class="inp-icon">✉</span><input class="inp" id="loginEmail" type="email" placeholder="e.g. name@gmail.com"></div>
+      <div class="inp-wrap"><span class="inp-icon">🔒</span><input class="inp" id="loginPass" type="password" placeholder="Password"></div>
+      <button class="btn-full" onclick="doLogin()">➔ Log in</button>
     </div>
     <div id="signupForm" style="display:none">
-      <input class="inp" id="signupName" type="text" placeholder="Full Name">
-      <input class="inp" id="signupEmail" type="email" placeholder="Email address">
-      <input class="inp" id="signupPhone" type="tel" placeholder="Phone Number (optional)">
-      <input class="inp" id="signupPass" type="password" placeholder="Password (min 6 chars)">
-      <button class="btn-full" id="signupBtn" onclick="doSignup()">Create Account</button>
+      <div class="inp-wrap"><span class="inp-icon">👤</span><input class="inp" id="signupName" type="text" placeholder="What should we call you?"></div>
+      <div class="inp-wrap"><span class="inp-icon">✉</span><input class="inp" id="signupEmail" type="email" placeholder="e.g. name@gmail.com"></div>
+      <div class="inp-wrap"><span class="inp-icon">📱</span><input class="inp" id="signupPhone" type="tel" placeholder="10-digit number"></div>
+      <div class="inp-wrap"><span class="inp-icon">🔒</span><input class="inp" id="signupPass" type="password" placeholder="At least 6 characters"></div>
+      <button class="btn-full" id="signupBtn" onclick="doSignup()">👤 Sign up</button>
     </div>
     <div class="auth-msg" id="authMsg"></div>
+    <div class="auth-switch" id="authSwitch">
+      <span id="switchText">Been here before? <span onclick="switchTab('login')">Log in</span></span>
+    </div>
   </div>
 </div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="logo">
-    <div class="logo-wrap">
-      <div class="logo-icon">CF</div>
-      <h2>Cash<span>Flix</span></h2>
-    </div>
-    <p>Publisher Panel</p>
+    <div class="logo-icon">⚡</div>
+    <div><div class="logo-text">Cash<span>Flix</span></div><div class="logo-sub">Affiliate panel</div></div>
   </div>
-  <nav style="flex:1;overflow-y:auto">
-    <div class="nav-sec">Main</div>
-    <div class="nav-item on" onclick="go('dashboard',this)">Dashboard</div>
-    <div class="nav-item" onclick="go('campaigns',this)">Campaigns</div>
-    <div class="nav-item" onclick="go('mylinks',this)">My Links</div>
-    <div class="nav-item" onclick="go('postback',this)">Postback</div>
-    <div class="nav-sec">Finance</div>
-    <div class="nav-item" onclick="go('withdraw',this)">Withdraw</div>
-    <div class="nav-item" onclick="go('withhistory',this)">Withdraw History</div>
-    <div class="nav-item" onclick="go('upi',this)">Save UPI ID</div>
-    <div class="nav-sec">Reports</div>
-    <div class="nav-item" onclick="go('performance',this)">Performance</div>
-    <div class="nav-item" onclick="go('pbconsole',this)">Postback Console</div>
-    <div class="nav-sec">Account</div>
-    <div class="nav-item" onclick="go('profile',this)">Profile</div>
-  </nav>
-  <div class="sidebar-user">
-    <div class="user-avatar" id="sideAvatar">?</div>
-    <div><div class="user-name" id="sideName">—</div><div class="user-email" id="sideEmail">—</div></div>
-    <button class="logout-btn" onclick="doLogout()">logout</button>
-  </div>
-</aside>
-
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<!-- MAIN -->
-<main class="main">
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="hburg" onclick="toggleSidebar()">menu</button>
-      <h1 id="pageTitle">Dashboard</h1>
-    </div>
-    <div class="balance-pill">Rs. <span id="topBalance">0.00</span></div>
-  </header>
-  <div class="content">
-
-    <!-- DASHBOARD -->
-    <div class="page on" id="pg-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card blue-card">
-          <div class="stat-icon">clicks</div>
-          <div class="stat-lbl">Total Clicks</div>
-          <div class="stat-val" id="st-clicks">0</div>
-          <div class="stat-sub">All time</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">conv</div>
-          <div class="stat-lbl">Conversions</div>
-          <div class="stat-val" id="st-convs">0</div>
-          <div class="stat-sub">Approved</div>
-        </div>
-        <div class="stat-card blue-card">
-          <div class="stat-icon">earn</div>
-          <div class="stat-lbl">Total Earned</div>
-          <div class="stat-val" id="st-earned">Rs.0</div>
-          <div class="stat-sub">Lifetime</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">pend</div>
-          <div class="stat-lbl">Pending</div>
-          <div class="stat-val" id="st-pending">0</div>
-          <div class="stat-sub">Conversions</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3>Recent Conversions</h3></div>
-        <table><thead><tr><th>Time</th><th>Campaign</th><th>Event</th><th>Payout</th><th>Status</th></tr></thead>
-        <tbody id="recentConvs"><tr class="empty-row"><td colspan="5">No conversions yet</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <!-- CAMPAIGNS -->
-    <div class="page" id="pg-campaigns">
-      <div class="card">
-        <div class="card-header">
-          <h3>Live Campaigns</h3>
-          <input class="search-inp" placeholder="Search..." oninput="filterCamps(this.value)">
-        </div>
-        <table><thead><tr><th>Campaign</th><th>Events & Payouts</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody id="campTable"><tr class="empty-row"><td colspan="4">Loading...</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <!-- MY LINKS -->
-    <div class="page" id="pg-mylinks">
-      <div class="card">
-        <div class="card-header"><h3>My Affiliate Links</h3></div>
-        <table><thead><tr><th>Campaign</th><th>Sub ID</th><th>Clicks</th><th>Tracking Link</th><th>Created</th></tr></thead>
-        <tbody id="linksTable"><tr class="empty-row"><td colspan="5">No links yet</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <!-- POSTBACK -->
-    <div class="page" id="pg-postback">
-      <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px">
-        <div style="font-size:13px;font-weight:600;color:var(--blue);margin-bottom:8px">Your Global Postback URL</div>
-        <div class="url-box">
-          <span class="url-text" id="globalPBUrl">—</span>
-          <button class="copy-btn" onclick="copy(document.getElementById('globalPBUrl').textContent)">Copy</button>
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:8px">Ye URL INRFlash ya kisi bhi advertiser ko do apne postback mein</div>
-      </div>
-      <button class="btn btn-blue" style="margin-bottom:18px" onclick="openPBModal()">+ Add Postback</button>
-      <div id="pbList"><div style="color:var(--muted);padding:10px">No postbacks added yet.</div></div>
-    </div>
-
-    <!-- WITHDRAW -->
-    <div class="page" id="pg-withdraw">
-      <div class="card" style="max-width:480px">
-        <div class="card-header"><h3>Withdraw Funds</h3></div>
-        <div style="padding:20px">
-          <div style="background:linear-gradient(135deg,var(--blue),var(--blue2));border-radius:12px;padding:20px;margin-bottom:20px;color:white">
-            <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:1px">Available Balance</div>
-            <div style="font-size:34px;font-weight:800;margin-top:4px">Rs. <span id="wdBalance">0.00</span></div>
-          </div>
-          <div class="form-group"><label>Amount (Rs.)</label><input id="wdAmount" type="number" placeholder="Min Rs.200"></div>
-          <div class="form-group"><label>UPI ID</label><input id="wdUpi" type="text" placeholder="yourname@upi"></div>
-          <button class="btn btn-blue" onclick="doWithdraw()">Request Withdrawal</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- WITHDRAW HISTORY -->
-    <div class="page" id="pg-withhistory">
-      <div class="card">
-        <div class="card-header"><h3>Withdrawal History</h3></div>
-        <table><thead><tr><th>Date</th><th>Amount</th><th>UPI</th><th>Status</th><th>Note</th></tr></thead>
-        <tbody id="wdHistory"><tr class="empty-row"><td colspan="5">No withdrawals yet</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <!-- UPI -->
-    <div class="page" id="pg-upi">
-      <div class="card" style="max-width:400px">
-        <div class="card-header"><h3>Save UPI ID</h3></div>
-        <div style="padding:20px">
-          <div class="form-group"><label>UPI ID</label><input id="upiVal" type="text" placeholder="yourname@upi"></div>
-          <button class="btn btn-blue" onclick="saveUpi()">Save</button>
-                </div>
-      </div>
-    </div>
-
-    <!-- PERFORMANCE -->
-    <div class="page" id="pg-performance">
-      <div class="card">
-        <div class="card-header"><h3>Performance Report</h3>
-          <div style="display:flex;gap:8px">
-            <input type="date" id="perfFrom" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none">
-            <input type="date" id="perfTo" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none">
-            <button class="btn btn-blue btn-sm" onclick="loadPerf()">Apply</button>
-          </div>
-        </div>
-        <table><thead><tr><th>Date</th><th>Campaign</th><th>Clicks</th><th>Conversions</th><th>Earned</th></tr></thead>
-        <tbody id="perfTable"><tr class="empty-row"><td colspan="5">Select date range and click Apply</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <!-- PB CONSOLE -->
-    <div class="page" id="pg-pbconsole">
-      <div class="card">
-        <div class="card-header"><h3>Postback Console</h3><button class="btn btn-ghost btn-sm" onclick="loadConsole()">Refresh</button></div>
-        <div style="padding:16px">
-          <div class="console-box" id="consoleBox">
-            <div class="log-entry"><span class="log-time">--:--:--</span><span style="color:#475569">No logs yet...</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="page" id="pg-profile">
-      <div class="card" style="max-width:500px">
-        <div class="card-header"><h3>Profile</h3></div>
-        <div style="padding:20px">
-          <div class="form-group"><label>Full Name</label><input id="profName" type="text"></div>
-          <div class="form-group"><label>Phone</label><input id="profPhone" type="tel"></div>
-          <button class="btn btn-blue" onclick="saveProfile()">Update Profile</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</main>
-
-<!-- POSTBACK MODAL -->
-<div class="modal-bg" id="pbModal">
-  <div class="modal">
-    <div class="modal-head"><h3>Add Postback</h3><button class="x-btn" onclick="closePBModal()">x</button></div>
-    <div class="form-group"><label>Campaign</label><select id="pbCamp"><option value="">Select campaign...</option></select></div>
-    <div class="form-group">
-      <label>Event</label>
-      <select id="pbEvent"><option value="">Select event...</option></select>
-    </div>
-    <div class="form-group">
-      <label>Your Postback URL</label>
-      <textarea id="pbUrl" placeholder="https://yourtracker.com/postback?click={aff_click_id}&payout={payout}"></textarea>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:8px">Click karke parameter insert karo:</div>
-      <div class="params-wrap">
-        <span class="param-chip" onclick="ins('{aff_click_id}')">{aff_click_id}</span>
-        <span class="param-chip" onclick="ins('{payout}')">{payout}</span>
-        <span class="param-chip" onclick="ins('{event_name}')">{event_name}</span>
-        <span class="param-chip" onclick="ins('{offer_id}')">{offer_id}</span>
-        <span class="param-chip" onclick="ins('{affsub}')">{affsub}</span>
-        <span class="param-chip" onclick="ins('{affsub2}')">{affsub2}</span>
-        <span class="param-chip" onclick="ins('{affsub3}')">{affsub3}</span>
-        <span class="param-chip" onclick="ins('{affsub4}')">{affsub4}</span>
-        <span class="param-chip" onclick="ins('{affsub5}')">{affsub5}</span>
-        <span class="param-chip" onclick="ins('{device}')">{device}</span>
-        <span class="param-chip" onclick="ins('{ip}')">{ip}</span>
-        <span class="param-chip" onclick="ins('{browser}')">{browser}</span>
-        <span class="param-chip" onclick="ins('{click_time}')">{click_time}</span>
-        <span class="param-chip" onclick="ins('{sub_aff_id}')">{sub_aff_id}</span>
-        <span class="param-chip" onclick="ins('{gaid}')">{gaid}</span>
-        <span class="param-chip" onclick="ins('{idfa}')">{idfa}</span>
-        <span class="param-chip" onclick="ins('{os}')">{os}</span>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-blue" style="flex:1" onclick="savePB()">Save Postback</button>
-      <button class="btn btn-ghost" onclick="closePBModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- GET LINK MODAL -->
-<div class="modal-bg" id="linkModal">
-  <div class="modal">
-    <div class="modal-head"><h3 id="linkModalTitle">Get Tracking Link</h3><button class="x-btn" onclick="document.getElementById('linkModal').classList.remove('show')">x</button></div>
-    <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--blue);margin-bottom:10px;text-transform:uppercase">Campaign Goals & Payouts</div>
-      <div id="campPayouts" style="font-size:13px;line-height:2;color:var(--text)"></div>
-    </div>
-    <div class="form-group"><label>Sub ID (optional)</label><input id="linkSubId" type="text" placeholder="e.g. facebook_ad_1"></div>
-    <div class="form-group">
-      <label>Your Tracking Link</label>
-      <div class="url-box"><span class="url-text" id="linkPreview">Generate karne ke liye neeche click karo</span><button class="copy-btn" onclick="copyAffLink()">Copy</button></div>
-    </div>
-    <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">INRFlash Postback URL (apne advertiser ko do)</div>
-      <div class="url-box" style="background:white">
-        <span class="url-text" id="advertiserPBUrl" style="color:var(--green)">—</span>
-        <button class="copy-btn" style="background:var(--green)" onclick="copy(document.getElementById('advertiserPBUrl').textContent)">Copy</button>
-      </div>
-    </div>
-    <button class="btn btn-blue" style="width:100%" onclick="generateLink()">Generate Tracking Link</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const SUPABASE_URL='https://brdiufojignimvdamkjr.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZGl1Zm9qaWduaW12ZGFta2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NzcxMzAsImV4cCI6MjA5NTU1MzEzMH0.RRPoR4BQXa8g54OZRRTU7RatkIzH5THWzJKEXFY7cZA';
-const BASE_URL = window.location.origin;
-const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
-let SESSION=null,PUBLISHER=null,CAMPAIGNS=[],linkCampId=null,linkCampShortId=null;
-
-async function init(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){SESSION=session;await loadPublisher();showApp();}
-  sb.auth.onAuthStateChange(async(_,s)=>{
-    if(s){SESSION=s;await loadPublisher();showApp();}
-    else{SESSION=null;PUBLISHER=null;document.getElementById('authScreen').style.display='flex';}
-  });
-}
-
-function showApp(){
-  document.getElementById('authScreen').style.display='none';
-  set('sideName',PUBLISHER?.name||'Publisher');
-  set('sideEmail',SESSION?.user?.email||'');
-  document.getElementById('sideAvatar').textContent=(PUBLISHER?.name||'P')[0].toUpperCase();
-  // Global postback URL
-  const pid=PUBLISHER?.short_id||'YOUR_PUB_ID';
-  set('globalPBUrl',`${BASE_URL}/postback?click_id={aff_click_id}&event={event_name}&payout={payout}`);
-  updateBalance();loadDashboard();loadCampaigns();
-}
-
-function switchTab(t){
-  document.getElementById('loginForm').style.display=t==='login'?'block':'none';
-  document.getElementById('signupForm').style.display=t==='signup'?'block':'none';
-  document.getElementById('tabLogin').classList.toggle('on',t==='login');
-  document.getElementById('tabSignup').classList.toggle('on',t==='signup');
-  msg('','');
-}
-function msg(txt,type){const el=document.getElementById('authMsg');el.textContent=txt;el.className='auth-msg'+(type?' '+type:'');}
-
-async function doLogin(){
-  const e=v('loginEmail'),p=v('loginPass');
-  if(!e||!p){msg('Email aur password bharo','err');return;}
-  msg('Login ho raha hai...');
-  const {error}=await sb.auth.signInWithPassword({email:e,password:p});
-  if(error){msg(error.message,'err');return;}
-  msg('');
-}
-
-async function doSignup(){
-  const btn=document.getElementById('signupBtn');
-  const name=v('signupName'),email=v('signupEmail'),phone=v('signupPhone'),pass=v('signupPass');
-  if(!name){msg('Naam bharo','err');return;}
-  if(!email){msg('Email bharo','err');return;}
-  if(!pass||pass.length<6){msg('Password min 6 characters','err');return;}
-  btn.textContent='Creating...';btn.disabled=true;
-  msg('Account ban raha hai...');
-  try{
-    const {data,error}=await sb.auth.signUp({email,password:pass});
-    if(error){msg(error.message,'err');btn.textContent='Create Account';btn.disabled=false;return;}
-    if(data?.user){
-      await sb.from('publishers').insert({id:data.user.id,email,name,phone:phone||null,status:'active',balance:0,total_earned:0});
-      msg('Account ban gaya! Ab login karo.','ok');
-      setTimeout(()=>{switchTab('login');document.getElementById('loginEmail').value=email;msg('Login karo','ok');},1500);
-    }
-  }catch(e){msg('Error: '+e.message,'err');}
-  btn.textContent='Create Account';btn.disabled=false;
-}
-
-async function doLogout(){await sb.auth.signOut();}
-
-async function loadPublisher(){
-  if(!SESSION)return;
-  const {data}=await sb.from('publishers').select('*').eq('id',SESSION.user.id).single();
-  PUBLISHER=data;
-}
-function updateBalance(){
-  const b=(PUBLISHER?.balance||0).toFixed(2);
-  set('topBalance',b);set('wdBalance',b);
-}
-
-async function loadDashboard(){
-  if(!SESSION)return;
-  const pid=SESSION.user.id;
-  const [{data:cl},{data:cv}]=await Promise.all([
-    sb.from('clicks').select('id').eq('publisher_id',pid),
-    sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',pid).order('created_at',{ascending:false})
-  ]);
-  const approved=(cv||[]).filter(c=>c.status==='approved');
-  const pending=(cv||[]).filter(c=>c.status==='pending');
-  set('st-clicks',(cl||[]).length);
-  set('st-convs',approved.length);
-  set('st-earned','Rs.'+approved.reduce((s,c)=>s+Number(c.payout),0).toFixed(2));
-  set('st-pending',pending.length);
-  const tb=document.getElementById('recentConvs');
-  if(!(cv||[]).length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No conversions yet</td></tr>';return;}
-  tb.innerHTML=(cv||[]).slice(0,10).map(r=>`<tr>
-    <td style="font-size:12px;color:var(--muted)">${fmtTime(r.created_at)}</td>
-    <td>${r.campaigns?.name||'—'}</td>
-    <td><span class="badge blue">${r.event_name}</span></td>
-    <td style="color:var(--green);font-weight:600">Rs.${Number(r.payout).toFixed(2)}</td>
-    <td><span class="badge ${r.status==='approved'?'green':r.status==='rejected'?'red':'yellow'}">${r.status}</span></td>
-  </tr>`).join('');
-}
-
-async function loadCampaigns(){
-  const {data}=await sb.from('campaigns').select('*').eq('status','active');
-  CAMPAIGNS=data||[];
-  const sel=document.getElementById('pbCamp');
-  sel.innerHTML='<option value="">Select campaign...</option>'+CAMPAIGNS.map(c=>`<option value="${c.id}" data-shortid="${c.short_id}" data-events='${JSON.stringify(c.events||[])}'>${c.name}</option>`).join('');
-  renderCamps(CAMPAIGNS);
-}
-
-function renderCamps(list){
-  const tb=document.getElementById('campTable');
-  if(!list.length){tb.innerHTML='<tr class="empty-row"><td colspan="4">No campaigns available</td></tr>';return;}
-  tb.innerHTML=list.map(c=>{
-    const events=c.events||[];
-    const evStr=events.map(e=>`<span style="margin-right:10px"><strong style="color:var(--green)">Rs.${e.payout}</strong> ${e.name}</span>`).join('');
-    return `<tr>
-      <td><strong>${c.name}</strong><br><span style="font-size:11px;color:var(--muted)">${c.description||''}</span></td>
-      <td style="font-size:13px">${evStr||'—'}</td>
-      <td><span class="badge green">Active</span></td>
-      <td><button class="btn btn-blue btn-sm" onclick="openLinkModal('${c.id}','${c.name}','${c.short_id}',${JSON.stringify(c.events||[]).replace(/'/g,"&#39;")})">Get Link</button></td>
-    </tr>`;
-  }).join('');
-}
-function filterCamps(q){renderCamps(CAMPAIGNS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())));}
-
-function openLinkModal(cid,name,shortId,events){
-  linkCampId=cid;linkCampShortId=shortId;
-  document.getElementById('linkModalTitle').textContent=name;
-  document.getElementById('linkSubId').value='';
-  document.getElementById('linkPreview').textContent='Generate karne ke liye neeche click karo';
-  const evArr=typeof events==='string'?JSON.parse(events):events;
-  let evHtml=evArr.map(e=>`<div>Event: <strong>${e.name}</strong> — Payout: <strong style="color:var(--green)">Rs.${e.payout}</strong></div>`).join('');
-  document.getElementById('campPayouts').innerHTML=evHtml||'—';
-  // Advertiser postback URL
-  const pid=PUBLISHER?.short_id||'X';
-  document.getElementById('advertiserPBUrl').textContent=`${BASE_URL}/postback?click_id={aff_click_id}&event={event_name}&payout={payout}`;
-  document.getElementById('linkModal').classList.add('show');
-}
-
-async function generateLink(){
-  if(!linkCampId){toast('Campaign select karo','err');return;}
-  const pub=PUBLISHER;
-  if(!pub?.short_id){toast('Publisher ID nahi mila','err');return;}
-  const url=`${BASE_URL}/click/?offer_id=${linkCampShortId}&pub=${pub.short_id}`;
-  document.getElementById('linkPreview').textContent=url;
-  // Save link if not exists
-  let {data:link}=await sb.from('affiliate_links').select('*').eq('publisher_id',pub.id).eq('campaign_id',linkCampId).single();
-  if(!link){
-    await sb.from('affiliate_links').insert({
-      publisher_id:pub.id,campaign_id:linkCampId,
-      short_code:`${linkCampShortId}-${pub.short_id}`,sub_id:null
-    });
-  }
-  toast('Link generate ho gaya!','ok');
-}
-function copyAffLink(){
-  const t=document.getElementById('linkPreview').textContent;
-  if(t.includes('Generate')){{toast('Pehle link generate karo','err');return;}}
-  copy(t);
-}
-
-// Campaign select hone par events load karo
-document.addEventListener('change',function(e){
-  if(e.target.id==='pbCamp'){
-    const opt=e.target.selectedOptions[0];
-    const events=opt?.dataset?.events?JSON.parse(opt.dataset.events):[];
-    const evSel=document.getElementById('pbEvent');
-    evSel.innerHTML='<option value="">Select event...</option>'+events.map(ev=>`<option value="${ev.name}">${ev.name} — Rs.${ev.payout}</option>`).join('');
-  }
-});
-
-async function loadLinks(){
-  const {data}=await sb.from('affiliate_links').select('*,campaigns(name,short_id)').eq('publisher_id',SESSION.user.id).order('created_at',{ascending:false});
-  const tb=document.getElementById('linksTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No links yet</td></tr>';return;}
-  tb.innerHTML=data.map(l=>{
-    const trackUrl=`${BASE_URL}/click/?offer_id=${l.campaigns?.short_id}&pub=${PUBLISHER?.short_id}`;
-    return `<tr>
-      <td>${l.campaigns?.name||'—'}</td>
-      <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${l.sub_id||'—'}</td>
-      <td id="lc-${l.short_code}">...</td>
-      <td><div class="url-box"><span class="url-text">${trackUrl}</span><button class="copy-btn" onclick="copy('${trackUrl}')">Copy</button></div></td>
-      <td style="font-size:12px;color:var(--muted)">${fmtDate(l.created_at)}</td>
-    </tr>`;
-  }).join('');
-  for(const l of data){
-    const {data:cl}=await sb.from('clicks').select('id').eq('link_id',l.id);
-    const el=document.getElementById(`lc-${l.short_code}`);
-    if(el)el.textContent=(cl||[]).length;
-  }
-}
-
-async function loadPostbacks(){
-  const {data}=await sb.from('postbacks').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
-  const container=document.getElementById('pbList');
-  if(!data?.length){container.innerHTML='<div style="color:var(--muted);padding:10px">No postbacks added yet.</div>';return;}
-  container.innerHTML=data.map(p=>`
-    <div class="pb-item">
-      <div class="pb-item-head">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <strong>${p.campaigns?.name||'—'}</strong>
-          <span class="badge blue">${p.event_name}</span>
-          <span class="badge green">${p.status}</span>
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="deletePB('${p.id}')">Delete</button>
-      </div>
-      <div class="url-box"><span class="url-text">${p.postback_url}</span><button class="copy-btn" onclick="copy('${p.postback_url}')">Copy</button></div>
-    </div>`).join('');
-}
-function openPBModal(){document.getElementById('pbModal').classList.add('show');}
-function closePBModal(){document.getElementById('pbModal').classList.remove('show');}
-function ins(p){const ta=document.getElementById('pbUrl');const pos=ta.selectionStart||ta.value.length;ta.value=ta.value.slice(0,pos)+p+ta.value.slice(pos);ta.focus();}
-async function savePB(){
-  const cid=v('pbCamp'),evt=v('pbEvent'),url=v('pbUrl');
-  if(!cid||!evt||!url){toast('Sab fields bharo','err');return;}
-  const {error}=await sb.from('postbacks').insert({publisher_id:SESSION.user.id,campaign_id:cid,event_name:evt,postback_url:url});
-  if(error){toast('Error: '+error.message,'err');return;}
-  document.getElementById('pbUrl').value='';
-  closePBModal();toast('Postback save ho gaya!','ok');loadPostbacks();
-}
-async function deletePB(id){
-  if(!confirm('Delete karna hai?'))return;
-  await sb.from('postbacks').delete().eq('id',id);
-  toast('Delete ho gaya','ok');loadPostbacks();
-}
-
-async function doWithdraw(){
-  const amount=parseFloat(v('wdAmount')),upi=v('wdUpi')||PUBLISHER?.upi_id;
-  if(!amount||amount<200){toast('Minimum Rs.200 chahiye','err');return;}
-  if(!upi){toast('UPI ID bharo','err');return;}
-  if(amount>(PUBLISHER?.balance||0)){toast('Balance nahi hai itna','err');return;}
-  await sb.from('withdrawals').insert({publisher_id:SESSION.user.id,amount,upi_id:upi});
-  await sb.from('publishers').update({balance:(PUBLISHER.balance-amount)}).eq('id',SESSION.user.id);
-  await loadPublisher();updateBalance();
-  document.getElementById('wdAmount').value='';
-  toast('Withdrawal request bhej di!','ok');
-}
-
-async function loadWithdrawHistory(){
-  const {data}=await sb.from('withdrawals').select('*').eq('publisher_id',SESSION.user.id).order('requested_at',{ascending:false});
-  const tb=document.getElementById('wdHistory');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No withdrawals yet</td></tr>';return;}
-  tb.innerHTML=data.map(w=>`<tr>
-    <td>${fmtDate(w.requested_at)}</td>
-    <td style="font-weight:700;color:var(--green)">Rs.${Number(w.amount).toFixed(2)}</td>
-    <td style="font-family:var(--mono);font-size:12px">${w.upi_id}</td>
-    <td><span class="badge ${w.status==='paid'?'green':w.status==='rejected'?'red':'yellow'}">${w.status}</span></td>
-    <td style="color:var(--muted);font-size:12px">${w.note||'—'}</td>
-  </tr>`).join('');
-}
-
-async function saveUpi(){
-  const upi=v('upiVal');if(!upi){toast('Enter Upi Id','err');return;}
-  await sb.from('publishers').update({upi_id:upi}).eq('id',SESSION.user.id);
-  await loadPublisher();toast('UPI save ho gaya!','ok');
-}
-
-async function loadPerf(){
-  const from=v('perfFrom'),to=v('perfTo');
-  let q=sb.from('conversions').select('*,campaigns(name)').eq('publisher_id',SESSION.user.id);
-  if(from)q=q.gte('created_at',from);
-  if(to)q=q.lte('created_at',to+'T23:59:59');
-  const {data}=await q.order('created_at',{ascending:false});
-  const tb=document.getElementById('perfTable');
-  if(!data?.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No data</td></tr>';return;}
-  const groups={};
-  for(const r of data){
-    const key=fmtDate(r.created_at)+'|'+(r.campaigns?.name||'—');
-    if(!groups[key])groups[key]={date:fmtDate(r.created_at),camp:r.campaigns?.name||'—',convs:0,earn:0};
-    groups[key].convs++;groups[key].earn+=Number(r.payout);
-  }
-  tb.innerHTML=Object.values(groups).map(g=>`<tr>
-    <td>${g.date}</td><td>${g.camp}</td><td>—</td><td>${g.convs}</td>
-    <td style="color:var(--green);font-weight:700">Rs.${g.earn.toFixed(2)}</td>
-  </tr>`).join('');
-}
-
-async function loadConsole(){
-  const {data}=await sb.from('postback_logs').select('*').eq('publisher_id',SESSION.user.id).order('fired_at',{ascending:false}).limit(50);
-  const box=document.getElementById('consoleBox');
-  if(!data?.length){box.innerHTML='<div class="log-entry"><span class="log-time">--:--</span><span style="color:#475569">No logs yet</span></div>';return;}
-  box.innerHTML=data.map(l=>`<div class="log-entry">
-    <span class="log-time">${fmtTime(l.fired_at)}</span>
-    <span class="${l.status==='success'?'log-ok':'log-err'}">[${l.response_code||'ERR'}]</span>
-    <span class="log-url">${l.fired_url||'—'}</span>
-  </div>`).join('');
-}
-
-async function loadProfile(){
-  document.getElementById('profName').value=PUBLISHER?.name||'';
-  document.getElementById('profPhone').value=PUBLISHER?.phone||'';
-  document.getElementById('upiVal').value=PUBLISHER?.upi_id||'';
-}
-async function saveProfile(){
-  const name=v('profName'),phone=v('profPhone');
-  if(!name){toast('Naam bharo','err');return;}
-  await sb.from('publishers').update({name,phone:phone||null}).eq('id',SESSION.user.id);
-  await loadPublisher();set('sideName',name);document.getElementById('sideAvatar').textContent=name[0].toUpperCase();
-  toast('Profile update ho gaya!','ok');
-}
-
-function go(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
-  document.getElementById('pg-'+id).classList.add('on');
-  el.classList.add('on');
-  set('pageTitle',el.textContent.trim());
-  closeSidebar();
-  if(id==='dashboard')loadDashboard();
-  if(id==='mylinks')loadLinks();
-  if(id==='postback')loadPostbacks();
-  if(id==='withhistory')loadWithdrawHistory();
-  if(id==='pbconsole')loadConsole();
-  if(id==='profile')loadProfile();
-  if(id==='withdraw')updateBalance();
-}
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
-function v(id){return document.getElementById(id)?.value?.trim()||'';}
-function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
-function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN'):'—';}
-function fmtTime(d){return d?new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
-function copy(txt){navigator.clipboard.writeText(txt).then(()=>toast('Copy ho gaya!','ok')).catch(()=>toast('Copy failed','err'));}
-function toast(msg,type){const box=document.getElementById('toast');const el=document.createElement('div');el.className=`toast-item ${type}`;el.innerHTML=`<span>${type==='ok'?'✓':'✗'}</span> ${msg}`;box.appendChild(el);setTimeout(()=>el.remove(),3000);}
-
-init();
-</script>
-</body>
-</html>
-    
-        
+  <nav style="flex:1;overflow-y:auto;padding:8px 0">
+    <div class="nav-sec">MAIN</div>
+    <div class="nav-item on" onclick="go('dashboard',this)"><span class="nav-icon">🏠</span> Dashboard</div>
+    <div class="nav-item" onclick="go('campaigns',this)"><span class="nav-icon">📢</span> Campaigns</div>
+    <div class="nav-item" onclick="go('postback',this)"><span class="nav-icon">🔗</span> Postback</div>
+    <div class="nav-sec">FINANCE</div>
+    <div class="nav-item" onclick="go('withdraw',this)"><span class="nav-icon">💸</span> Withdraw</div>
+    <div class="nav-item" onclick="go('withhistory',this)"><span class="nav-icon">🕐</span> Withdraw Histor
